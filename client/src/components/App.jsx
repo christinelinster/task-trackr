@@ -1,46 +1,68 @@
 import { useEffect, useState } from "react";
+import Header from "./Header";
+import List from "./List";
+
 
 function App() {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [tasks, setTasks] = useState([]);
+  const [lists, setLists] = useState([]);
 
-  // Fetch the data when the component mounts
+  // Fetch the data from /api/items 
+  async function fetchTasks(){
+    try {
+      const response = await fetch("/api/tasks");
+      const data = await response.json();
+      console.log(data);
+      setTasks(data);
+    } catch (err) {
+      console.error("Error fetching items:", err)
+    }
+  }
+
+  // Fetch the data from /api/categories
+  async function fetchLists(){
+    try {
+      const response = await fetch("/api/lists");
+      const data = await response.json();
+      console.log(data);
+      setLists(data);
+    } catch (err) {
+      console.error("Error fetching items:", err)
+    }
+  }
+
+async function handleDeleteList(listID){
+  try {
+    const response = await fetch(`/api/lists/${listID}`, {
+      method: "DELETE"
+    })
+    const data = await response.json();
+    console.log("List deleted: ", data);
+    fetchLists();
+  } catch (err) {
+    console.error("Error deleting list:", err)
+  }
+}
+
+
+// Initial data fetching
   useEffect(() => {
-    fetch("/api/items")
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        setItems(data);       // Set the items data to state
-        setLoading(false);    // Stop the loading spinner
-      })
-      .catch((error) => {
-        console.error("Error fetching items:", error);
-        setLoading(false);    // Stop loading if there's an error
-      });
+    fetchLists();
+    fetchTasks();
   }, []);
-  
-  return (
-    <div>
-      <h1>Task List</h1>
 
-      {loading ? (
-        <p>Loading tasks...</p>
-      ) : (
-        <ul>
-          {items.length > 0 ? (
-            items.map((item) => (
-              <li key={item.id}>
-                <strong>Task:</strong> {item.task} <br />
-                <strong>Category:</strong> {item.category}
-              </li>
-            ))
-          ) : (
-            <p>No tasks found</p>
-          )}
-        </ul>
-      )}
+  return(
+    <div>
+      <Header updateLists = {fetchLists}/>
+      <List
+      lists={lists}
+      tasks={tasks}
+      onDelete = {handleDeleteList}
+      />
+  
     </div>
-  );
+  )
+
 }
 
 export default App;
