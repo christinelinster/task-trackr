@@ -82,6 +82,7 @@ app.post("/api/lists", async(req,res) => {
 
 app.post("/api/tasks", async(req,res) => {
   const {addTask} = req.body;
+  console.log(req.body.addTask);
   const {listID} = req.body;
 
   if(!addTask){
@@ -106,6 +107,9 @@ app.delete("/api/lists/:id", async (req, res) => {
 
     if(hasTasks.rowCount > 0){
       await db.query("DELETE FROM tasks WHERE list_id = ($1) RETURNING *;", [id]);
+      const result = await db.query("DELETE FROM lists WHERE id = ($1) RETURNING *", [id])
+      console.log(result.rows[0]);
+      res.json({success: true, message: "List deleted", deletedList: result.rows[0]}); 
     } else {
       const result = await db.query("DELETE FROM lists WHERE id = ($1) RETURNING *", [id])
       console.log(result.rows[0]);
