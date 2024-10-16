@@ -7,7 +7,7 @@ function App() {
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
 
-  // Fetch the data from /api/items 
+  // Fetch the data from /api/tasks
   async function fetchTasks(){
     try {
       const response = await fetch("/api/tasks");
@@ -19,7 +19,7 @@ function App() {
     }
   }
 
-  // Fetch the data from /api/categories
+  // Fetch the data from /api/lists
   async function fetchLists(){
     try {
       const response = await fetch("/api/lists");
@@ -31,6 +31,7 @@ function App() {
     }
   }
 
+  // Delete list from /api/lists/:id
 async function handleDeleteList(listID){
   try {
     const response = await fetch(`/api/lists/${listID}`, {
@@ -44,6 +45,18 @@ async function handleDeleteList(listID){
   }
 }
 
+async function handleDeleteTask(taskID) {
+  try {
+    const response = await fetch(`/api/tasks/${taskID}`, {
+      method: "DELETE"
+    })
+    const data = await response.json();
+    console.log("Task deleted: ", data);
+    fetchTasks();
+  } catch (err) {
+    console.error("Error deleting task:", err)
+  }
+}
 
 // Initial data fetching
   useEffect(() => {
@@ -57,7 +70,9 @@ async function handleDeleteList(listID){
       <List
       lists={lists}
       tasks={tasks}
-      onDelete = {handleDeleteList}
+      onDeleteList  = {handleDeleteList}
+      onDeleteTask = {handleDeleteTask}
+      updateTasks = {fetchTasks}
       />
   
     </div>

@@ -80,6 +80,23 @@ app.post("/api/lists", async(req,res) => {
   }
 })
 
+app.post("/api/tasks", async(req,res) => {
+  const {addTask} = req.body;
+  const {listID} = req.body;
+
+  if(!addTask){
+    return res.status(400).json({error:"List name is required"});
+  }
+
+  try{
+    const result = await db.query("INSERT INTO tasks (task, list_id) VALUES ($1, $2) RETURNING *;", [addTask, listID]);
+    res.status(201).json(result.rows[0])
+  } catch(err){
+    console.error("Error inserting task", err);
+    res.status(500).json({error:"Internal server error"});
+  }
+})
+
 app.delete("/api/lists/:id", async (req, res) => {
   try {
     const { id } = req.params; // Extract the id from the request parameters
@@ -91,19 +108,28 @@ app.delete("/api/lists/:id", async (req, res) => {
       await db.query("DELETE FROM tasks WHERE list_id = ($1) RETURNING *;", [id]);
     } else {
       const result = await db.query("DELETE FROM lists WHERE id = ($1) RETURNING *", [id])
-      // Check if the row was successfully deleted
-      if (result.rowCount > 0) {
-        res.json({ success: true, message: "List deleted", deletedList: result.rows[0] });
-      } else {
-        res.status(404).json({ success: false, message: "List not found" });
-      }
+      console.log(result.rows[0]);
+      res.json({success: true, message: "List deleted", deletedList: result.rows[0]}); 
     }
-
   } catch (err) {
     console.error("Error deleting list:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
+app.delete("/api/tasks/:id", async(req,res) => {
+try {
+  const {id} = req.params;
+  const result = await db.query("DELETE FROM tasks WHERE id = ($1) RETURNING *;",[id])
+  console.log(result.rows[0]);
+  res.json({success: true, message: "Task deleted", deletedTask: result.rows[0]});
+  
+} catch (err) {
+  console.error("Error deleting task: ", err);
+  res.status(500).json({success: false, message: "Server error"})
+}
+
+})
 
 // Start the Express server
 app.listen(port, () => {
