@@ -1,0 +1,61 @@
+#header {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: center;
+}
+
+h1 {
+  font-family: Alata;
+  font-size: 3rem;
+  letter-spacing: 0.72px;
+  color: rgba(222, 208, 182, 0.85);
+  margin: 0;
+  transition: color 0.25s;
+}
+
+h1:hover{
+color: rgba(222, 208, 182, 0.50);
+}
+
+#header p{
+    font-weight: 600;
+    margin: 0;
+}
+
+#header form{
+    margin: 2rem 0 0.5rem;
+}
+
+#header input[type="text"] {
+  text-align: left;
+  background-color: #d9d9d9;
+  color: rgba(0,0,0, 0.7);
+  border: none;
+  outline: none;
+  border-radius: 10px;
+  width: 300px;
+  height: 25px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-family: "Geologica", sans-serif;
+  font-weight: 400;
+  transition: border 0.25s;
+}
+
+#header button[type="submit"]{
+    margin-left: 15px;
+    background-color: rgba(222, 208, 182, 0.50);
+    border-radius: 10px;
+    border:none;
+    outline: none;
+    height: 35px;
+    padding: 5px 10px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
+#header button[type="submit"]:hover{
+    background-color:  rgba(222, 208, 182, 0.75);
+  }
