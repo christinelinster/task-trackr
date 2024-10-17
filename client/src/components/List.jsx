@@ -2,17 +2,22 @@ import { useState } from "react";
 
 function List({ lists, tasks, onDeleteList, onDeleteTask, updateTasks }) {
   //Count number of tasks
-  const [addTask, setAddTask] = useState("");
+  const [addTask, setAddTask] = useState({});
 
   function countTasks(listID) {
     let listLength = tasks.filter((task) => task.list_id === listID).length;
-    if (listLength == 1) {
-      return listLength + " task left";
-    } else {
-      return listLength + " tasks left";
-    }
+    return listLength === 1
+    ? `${listLength} task left`
+    : `${listLength} tasks left`
   }
 
+  function handleAddTask(e, listID){
+   setAddTask((prevValue) => ({
+    ...prevValue,
+    [listID]: e.target.value,
+   }))
+  }
+  
   async function handleSubmit(e, listID) {
     e.preventDefault();
     try {
@@ -22,13 +27,16 @@ function List({ lists, tasks, onDeleteList, onDeleteTask, updateTasks }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          addTask: addTask,
+          addTask: addTask[listID],
           listID: listID 
         }),
       });
       const data = await response.json();
       console.log("New task added", data)
-      setAddTask("");
+      setAddTask((prevValue) => ({
+        ...prevValue,
+        [listID]: "",
+      }))
       updateTasks();
 
     } catch (err) {
@@ -59,13 +67,14 @@ function List({ lists, tasks, onDeleteList, onDeleteTask, updateTasks }) {
                 </li>
               ))}
           </ul>
+          <input type="text" />
           <form onSubmit={(e) => handleSubmit(e, list.id)}>
             <input
               type="text"
-              value={addTask}
+              value={addTask[list.id]}
               placeholder="Add a task"
               autoComplete="off"
-              onChange={(e) => setAddTask(e.target.value)}
+              onChange={(e) => handleAddTask(e, list.id)}
             />
             <input type="text" value={list.id} hidden/>
             <button type="submit">+ Task</button>
