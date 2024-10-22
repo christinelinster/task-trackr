@@ -6,6 +6,7 @@ import List from "./List";
 function App() {
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
+  
 
   // Fetch the data from /api/tasks
   async function fetchTasks(){
@@ -58,6 +59,33 @@ async function handleDeleteTask(taskID) {
   }
 }
 
+async function handleEditTask(taskID, newTaskValue){
+
+  try{
+    const response = await fetch(`/api/tasks/${taskID}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        task: newTaskValue,
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to update task");
+    }
+    const data = response.json();
+    console.log("Task updated: ", data)
+    fetchTasks();
+
+  } catch (err) {
+    console.error("Error editing task:", err)
+    throw err;
+  }
+}
+
+
 // Initial data fetching
   useEffect(() => {
     fetchLists();
@@ -66,13 +94,14 @@ async function handleDeleteTask(taskID) {
 
   return(
     <div id="main">
-      <Header updateLists = {fetchLists}/>
+      <Header onUpdateLists = {fetchLists}/>
       <List
       lists={lists}
       tasks={tasks}
       onDeleteList  = {handleDeleteList}
       onDeleteTask = {handleDeleteTask}
-      updateTasks = {fetchTasks}
+      onUpdateTasks = {fetchTasks}
+      onEditTask ={handleEditTask}
       />
     </div>
   )

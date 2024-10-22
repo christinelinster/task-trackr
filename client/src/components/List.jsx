@@ -4,12 +4,17 @@ import("../styles/List.css");
 import DeleteIcon from "@mui/icons-material/Delete";
 import Radio from "@mui/material/Radio";
 
-
-
-
-function List({ lists, tasks, onDeleteList, onDeleteTask, updateTasks }) {
-  //Count number of tasks
+function List({
+  lists,
+  tasks,
+  onDeleteList,
+  onDeleteTask,
+  onUpdateTasks,
+  onEditTask,
+}) {
   const [addTask, setAddTask] = useState({});
+  const [editID, setEditID] = useState(null);
+  const [editTask, setEditTask] = useState("");
 
   function countTasks(listID) {
     let listLength = tasks.filter((task) => task.list_id === listID).length;
@@ -38,16 +43,38 @@ function List({ lists, tasks, onDeleteList, onDeleteTask, updateTasks }) {
           listID: listID,
         }),
       });
+
       const data = await response.json();
       console.log("New task added", data);
       setAddTask((prevValue) => ({
         ...prevValue,
         [listID]: "",
       }));
-      updateTasks();
+      onUpdateTasks();
     } catch (err) {
       console.error("Error adding task", err);
     }
+  }
+
+  async function handleEnter(e) {
+    if (e.keyCode === 13) {
+      try {
+        handleOnBlur();
+      } catch (err) {
+        console.error("Failed to edit task:", err);
+      }
+    }
+  }
+
+  async function handleOnBlur(){
+    await onEditTask(editID, editTask)
+    setEditID(null)
+    setEditTask("");
+  }
+
+  function handleEdit(task) {
+    setEditID(task.id);
+    setEditTask(task.task);
   }
 
   return (
@@ -59,36 +86,44 @@ function List({ lists, tasks, onDeleteList, onDeleteTask, updateTasks }) {
               <h2>{list.name}</h2>
               <p>{countTasks(list.id)}</p>
             </div>
-            <button
-              value={list.id}
-              onClick={()=>onDeleteList(list.id)}
-            >
+            <button onClick={() => onDeleteList(list.id)}>
               <DeleteIcon className="icon" />
             </button>
           </div>
           <div className="list-items">
-     
-   
-                {tasks
-                  .filter((task) => task.list_id === list.id)
-                  .map((task) => (
-                    <div key={task.id} className="task">
-                    <Radio 
-                      value={task.id}
-                      onClick={(e) => onDeleteTask(e.target.value)} size="small" sx={{
+            {tasks
+              .filter((task) => task.list_id === list.id)
+              .map((task) => (
+                <div key={task.id} className="task">
+                  <Radio
+                    onClick={() => onDeleteTask(task.id)}
+                    size="small"
+                    sx={{
+                      color: "#DED0B6",
+                      "&.Mui-checked": {
                         color: "#DED0B6",
-                        '&.Mui-checked': {
-                          color: "#DED0B6",
-                        },
-                      }}/>
-                      <span>{task.task}</span>
-                   </div>
-                      
-     
-                  ))}
+                      },
+                    }}
+                  />
+                  {editID === task.id ? (
+                    <input
+                      autoFocus
+                      type="text"
+                      value={editTask}
+                      onChange={(e) => setEditTask(e.target.value)}
+                      onKeyDown={(e) => handleEnter(e)}
+                      onBlur={(e) => handleOnBlur(e)}
+                    />
+                  ) : (
+                    <p onClick={() => handleEdit(task)}>{task.task}</p>
+                  )}
+                </div>
+              ))}
 
-      
-            <form className="add-task" onSubmit={(e) => handleSubmit(e, list.id)}>
+            <form
+              className="add-task"
+              onSubmit={(e) => handleSubmit(e, list.id)}
+            >
               <input
                 type="text"
                 value={addTask[list.id]}

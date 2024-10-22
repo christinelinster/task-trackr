@@ -71,7 +71,7 @@
     
 }
 
-.task, .add-task>input[type="text"]{
+.task, .add-task>input[type="text"], .task>:last-child{
     font-family: Geologica;
     font-size: 15px;
     font-weight: 400;
