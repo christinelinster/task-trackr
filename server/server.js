@@ -53,7 +53,7 @@ app.get("/api/tasks", async (req, res) => {
 // Route to fetch all items from the "lists" table
 app.get("/api/lists", async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM lists");
+    const result = await db.query("SELECT * FROM lists ORDER BY id ASC");
     res.json(result.rows);
 
   } catch (err) {
@@ -94,6 +94,24 @@ app.post("/api/tasks", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+app.patch("/api/lists/:id", async(req,res) => {
+  console.log("Edit request received for list ID", req.params.id)
+
+  try {
+    const {id} = req.params;
+    const {list} = req.body;
+
+    const result = await db.query(
+      "UPDATE lists SET name = ($1) WHERE id = ($2) RETURNING *", [list, id]
+    )
+    res.status(201).json(result.rows[0]);
+    
+  } catch (err) {
+    console.error("Error editing list: ", err)
+    res.status(500).json({success:false, message: "Server error"})
+  }
+})
 
 app.patch("/api/tasks/:id", async(req,res) => {
   console.log("Edit request received for task ID:", req.params.id);
