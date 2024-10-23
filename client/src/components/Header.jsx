@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "../styles/Header.css"
 
 function Header({updateLists}) {
 
@@ -36,9 +37,9 @@ function Header({updateLists}) {
 }
 
   return (
-    <div>
-      <h1>Task Trackr</h1>
-      <p>{today}</p>
+    <div id="header">
+      <h1>TASK TRACKR</h1>
+      <p className="date">{today}</p>
 
       <form onSubmit={handleSubmit}>
         <input

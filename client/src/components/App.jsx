@@ -65,7 +65,7 @@ async function handleDeleteTask(taskID) {
   }, []);
 
   return(
-    <div>
+    <div id="main">
       <Header updateLists = {fetchLists}/>
       <List
       lists={lists}
@@ -74,7 +74,6 @@ async function handleDeleteTask(taskID) {
       onDeleteTask = {handleDeleteTask}
       updateTasks = {fetchTasks}
       />
-  
     </div>
   )
 

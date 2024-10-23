@@ -1,0 +1,91 @@
+.cards{
+    display: grid;
+    align-items: start;
+    justify-items: center;
+    justify-content: center;
+    grid-template-columns: repeat(auto-fit, 400px);
+    gap: 50px;
+    padding: 4rem 0;
+}
+
+.list{
+    width: 400px;
+    max-width: 400px;
+}
+
+.list-title{
+    margin-bottom: 15px;
+    background-color: #1E201E;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list-title h2{
+    margin:0;
+}
+
+.list-title p {
+    margin:0;
+    letter-spacing: 0.5px;
+    font-size: 0.8rem;
+    color: #DED0B6;
+}
+
+.list-title button{
+  display: flex;
+    border: none;
+    text-align: center;
+    background-color: #1E201E;
+    padding:0;
+}
+
+.list-title button:hover,.list-title button:hover:active {
+    background-color:rgba(222, 208, 182, 0.50);
+    outline: none;
+}
+
+.icon {
+    border-radius: 5px;
+    height: 20px;
+    padding: 10px;
+    background-color:rgba(222, 208, 182, 0.50);
+  }
+
+.list-items{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #DED0B6;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.task, .add-task{
+    display: flex;
+    align-items: center;
+    min-height: 35px;
+    background-color: #3C3D37;
+    margin: 5px 0;
+    border-radius: 5px;
+    
+}
+
+.task, .add-task>input[type="text"]{
+    font-family: Geologica;
+    font-size: 15px;
+    font-weight: 400;
+    background-color: #3C3D37;
+    border: none;
+    outline: none;
+    margin: 5px 0;
+}
+
+.add-task>input[type="text"]{
+    margin-left: 10px;
+    flex:1;
+}
+
+.task>:last-child{
+    flex: 1;
+}
