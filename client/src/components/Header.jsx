@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "../styles/Header.css"
 
-function Header({updateLists}) {
+function Header({onUpdateLists}) {
 
   // Get current date
   const today = new Date().toLocaleDateString("default", {
@@ -29,7 +29,7 @@ function Header({updateLists}) {
         const data = await response.json();
         console.log("New list added: ", data);
         setList("");
-        updateLists();
+        onUpdateLists();
 
     } catch (err) {
         console.error("Error adding list:", err);

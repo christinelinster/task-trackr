@@ -41,7 +41,7 @@ let lists = [
 // Route to fetch all items from the "items" table
 app.get("/api/tasks", async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM tasks");
+    const result = await db.query("SELECT * FROM tasks ORDER BY id ASC");
 
     // Log the data received from the PostgreSQL database
     console.log("Data from Postgres:", result.rows);
@@ -104,6 +104,28 @@ app.post("/api/tasks", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+app.patch("/api/tasks/:id", async(req,res) => {
+  console.log("Edit request received for task ID:", req.params.id);
+
+  try {
+    const {id} = req.params;
+    const {task} = req.body;
+
+    console.log(req.params.id);
+    console.log(req.body.task);
+
+    const result = await db.query(
+      "UPDATE tasks SET task=($1) WHERE id =($2) RETURNING *;", [task, id]
+    );
+
+    res.json(result.rows[0]);
+
+  } catch (err) {
+    console.error("Error editing task:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+})
 
 app.delete("/api/lists/:id", async (req, res) => {
   console.log("Delete request received for list ID:", req.params.id);
