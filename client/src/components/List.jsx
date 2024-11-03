@@ -10,6 +10,7 @@ function List({
   onDeleteList,
   onDeleteTask,
   onUpdateTasks,
+  onUpdateLists,
   onEditTask,
   onEditList,
 }) {
@@ -32,18 +33,29 @@ function List({
 
   async function handleEnter(e) {
     if (e.keyCode === 13) {
-      try {
-        handleOnBlur();
-      } catch (err) {
-        console.error("Failed to edit task:", err);
-      }
+        try {
+          handleEditTask() || handleEditList();
+        } catch (err) {
+          console.error("Failed to edit task:", err);
+        }
+      e.target.blur();
     }
   }
 
-  async function handleOnBlur() {
-    (await onEditTask(editID, editTask)) || onEditList(editID, editList);
+  async function handleEditTask() {
+    await onEditTask(editID, editTask);
     setEditID(null);
-    setEditTask("") || setEditList("");
+    setEditTask("")
+  }
+
+  async function handleEditList(){
+    if(editList.replace(/\s+/g, "") == ""){
+      onUpdateLists();
+    } else {
+      await onEditList(editID, editList);
+      setEditList(null);
+      setEditList("")
+    }
   }
 
   function handleAddTask(e, listID) {
@@ -54,6 +66,9 @@ function List({
   }
 
   async function handleSubmit(e, listID) {
+ if(addTask[listID].replace(/\s+/g, "") == ""){
+  return false;
+ }
     e.preventDefault();
     try {
       const response = await fetch("/api/tasks", {
@@ -92,7 +107,7 @@ function List({
                   value={editList}
                   onChange={(e) => setEditList(e.target.value)}
                   onKeyDown={(e) => handleEnter(e)}
-                  onBlur={(e) => handleOnBlur(e)}
+                  onBlur={(e) => handleEditList(e)}
                 />
               ) : (
                 <h2 onClick={() => handleEdit(list)}>{list.name}</h2>
@@ -125,7 +140,7 @@ function List({
                       value={editTask}
                       onChange={(e) => setEditTask(e.target.value)}
                       onKeyDown={(e) => handleEnter(e)}
-                      onBlur={(e) => handleOnBlur(e)}
+                      onBlur={(e) => handleEditTask(e)}
                     />
                   ) : (
                     <p onClick={() => handleEdit(task)}>{task.task}</p>

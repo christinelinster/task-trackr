@@ -41,7 +41,7 @@ let lists = [
 // Route to fetch all items from the "items" table
 app.get("/api/tasks", async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM tasks ORDER BY id ASC");
+    const result = await db.query("SELECT * FROM tasks WHERE task != '' ORDER BY id ASC");
     res.json(result.rows);
 
   } catch (err) {
@@ -96,12 +96,10 @@ app.post("/api/tasks", async (req, res) => {
 });
 
 app.patch("/api/lists/:id", async(req,res) => {
-  console.log("Edit request received for list ID", req.params.id)
-
+  const {id} = req.params;
+  const {list} = req.body;
+  
   try {
-    const {id} = req.params;
-    const {list} = req.body;
-
     const result = await db.query(
       "UPDATE lists SET name = ($1) WHERE id = ($2) RETURNING *", [list, id]
     )
@@ -115,10 +113,10 @@ app.patch("/api/lists/:id", async(req,res) => {
 
 app.patch("/api/tasks/:id", async(req,res) => {
   console.log("Edit request received for task ID:", req.params.id);
-  try {
-    const {id} = req.params;
-    const {task} = req.body;
 
+  const {id} = req.params;
+  const {task} = req.body;
+  try {
     const result = await db.query(
       "UPDATE tasks SET task=($1) WHERE id =($2) RETURNING *;", [task, id]
     );
@@ -132,6 +130,7 @@ app.patch("/api/tasks/:id", async(req,res) => {
 
 app.delete("/api/lists/:id", async (req, res) => {
   console.log("Delete request received for list ID:", req.params.id);
+
   try {
     const { id } = req.params; 
 

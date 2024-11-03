@@ -34,6 +34,7 @@ function App() {
       const response = await fetch(`/api/lists/${listID}`, {
         method: "DELETE",
       });
+
       const data = await response.json();
       console.log("List deleted: ", data);
       fetchLists();
@@ -122,6 +123,7 @@ function App() {
         onDeleteList={handleDeleteList}
         onDeleteTask={handleDeleteTask}
         onUpdateTasks={fetchTasks}
+        onUpdateLists = {fetchLists}
         onEditTask={handleEditTask}
         onEditList={handleEditList}
       />
