@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import Header from "./Header";
 import List from "./List";
+import ListMenu from "./ListMenu";
 
 function App() {
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
+  const [selectedLists, setSelectedLists] = useState([]);
 
   // Fetch the data from /api/tasks
   async function fetchTasks() {
@@ -62,23 +64,22 @@ function App() {
       const response = await fetch(`/api/lists/${listID}`, {
         method: "PATCH",
         headers: {
-          "Content-Type": "application/json", 
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           list: newListValue,
         }),
       });
 
-      if(!response.ok){
-        throw new Error("Failed to update list name"); 
+      if (!response.ok) {
+        throw new Error("Failed to update list name");
       }
 
       const data = response.json();
       console.log("List updated: ", data);
       fetchLists();
-
     } catch (err) {
-      console.error("Error editing list name:", err)
+      console.error("Error editing list name:", err);
     }
   }
 
@@ -101,7 +102,6 @@ function App() {
       const data = response.json();
       console.log("Task updated: ", data);
       fetchTasks();
-      
     } catch (err) {
       console.error("Error editing task:", err);
       throw err;
@@ -114,16 +114,32 @@ function App() {
     fetchTasks();
   }, []);
 
+  const handleSelectedLists = (listId) => {
+    setSelectedLists((prevSelected) => {
+      if (prevSelected.includes(listId)) {
+        return prevSelected.filter((id) => id !== listId);
+      } else {
+        return [...prevSelected, listId];
+      }
+    });
+  };
+
   return (
     <div id="main">
-      <Header onUpdateLists={fetchLists} />
+      <ListMenu
+        lists={lists}
+        selectedLists={selectedLists}
+        onSelectedLists = {handleSelectedLists}
+      />
+      <Header onUpdateLists={fetchLists} onSelectedLists = {handleSelectedLists}/>
       <List
         lists={lists}
         tasks={tasks}
+        selectedLists={selectedLists}
         onDeleteList={handleDeleteList}
         onDeleteTask={handleDeleteTask}
         onUpdateTasks={fetchTasks}
-        onUpdateLists = {fetchLists}
+        onUpdateLists={fetchLists}
         onEditTask={handleEditTask}
         onEditList={handleEditList}
       />
