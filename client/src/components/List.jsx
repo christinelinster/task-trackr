@@ -23,6 +23,27 @@ function List({
       : `${listLength} tasks left`;
   }
 
+  function handleEdit(task) {
+    setEditID(task.id);
+    setEditTask(task.task);
+  }
+
+  async function handleEnter(e) {
+    if (e.keyCode === 13) {
+      try {
+        handleOnBlur();
+      } catch (err) {
+        console.error("Failed to edit task:", err);
+      }
+    }
+  }
+
+  async function handleOnBlur() {
+    await onEditTask(editID, editTask);
+    setEditID(null);
+    setEditTask("");
+  }
+
   function handleAddTask(e, listID) {
     setAddTask((prevValue) => ({
       ...prevValue,
@@ -54,27 +75,6 @@ function List({
     } catch (err) {
       console.error("Error adding task", err);
     }
-  }
-
-  async function handleEnter(e) {
-    if (e.keyCode === 13) {
-      try {
-        handleOnBlur();
-      } catch (err) {
-        console.error("Failed to edit task:", err);
-      }
-    }
-  }
-
-  async function handleOnBlur(){
-    await onEditTask(editID, editTask)
-    setEditID(null)
-    setEditTask("");
-  }
-
-  function handleEdit(task) {
-    setEditID(task.id);
-    setEditTask(task.task);
   }
 
   return (

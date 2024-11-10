@@ -42,35 +42,28 @@ let lists = [
 app.get("/api/tasks", async (req, res) => {
   try {
     const result = await db.query("SELECT * FROM tasks ORDER BY id ASC");
-
-    // Log the data received from the PostgreSQL database
-    console.log("Data from Postgres:", result.rows);
-
-    // Sends the rows from the "items" table as the response
     res.json(result.rows);
+
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Server Error" });
   }
 });
 
+// Route to fetch all items from the "lists" table
 app.get("/api/lists", async (req, res) => {
   try {
     const result = await db.query("SELECT * FROM lists");
-    console.log("Data from Postgres:", result.rows);
     res.json(result.rows);
+
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Server Error" });
   }
 });
 
 app.post("/api/lists", async (req, res) => {
   const { list } = req.body;
-
-  if (!list) {
-    return res.status(400).json({ error: "List name is required" });
-  }
 
   try {
     const result = await db.query(
@@ -78,20 +71,16 @@ app.post("/api/lists", async (req, res) => {
       [list]
     );
     res.status(201).json(result.rows[0]);
+
   } catch (err) {
     console.error("Error inserting list:", err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Server error" });
   }
 });
 
 app.post("/api/tasks", async (req, res) => {
   const { addTask } = req.body;
-  console.log(req.body.addTask);
   const { listID } = req.body;
-
-  if (!addTask) {
-    return res.status(400).json({ error: "List name is required" });
-  }
 
   try {
     const result = await db.query(
@@ -99,27 +88,23 @@ app.post("/api/tasks", async (req, res) => {
       [addTask, listID]
     );
     res.status(201).json(result.rows[0]);
+
   } catch (err) {
     console.error("Error inserting task", err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Server error" });
   }
 });
 
 app.patch("/api/tasks/:id", async(req,res) => {
   console.log("Edit request received for task ID:", req.params.id);
-
   try {
     const {id} = req.params;
     const {task} = req.body;
 
-    console.log(req.params.id);
-    console.log(req.body.task);
-
     const result = await db.query(
       "UPDATE tasks SET task=($1) WHERE id =($2) RETURNING *;", [task, id]
     );
-
-    res.json(result.rows[0]);
+    res.status(201).json(result.rows[0]);
 
   } catch (err) {
     console.error("Error editing task:", err);
@@ -130,9 +115,8 @@ app.patch("/api/tasks/:id", async(req,res) => {
 app.delete("/api/lists/:id", async (req, res) => {
   console.log("Delete request received for list ID:", req.params.id);
   try {
-    const { id } = req.params; // Extract the id from the request parameters
+    const { id } = req.params; 
 
-    // Check for items in the list
     const hasTasks = await db.query(
       "SELECT * FROM tasks WHERE list_id = ($1);",
       [id]
@@ -146,18 +130,17 @@ app.delete("/api/lists/:id", async (req, res) => {
         "DELETE FROM lists WHERE id = ($1) RETURNING *",
         [id]
       );
-      console.log(result.rows[0]);
       res.json({
         success: true,
         message: "List deleted",
         deletedList: result.rows[0],
       });
+
     } else {
       const result = await db.query(
         "DELETE FROM lists WHERE id = ($1) RETURNING *",
         [id]
       );
-      console.log(result.rows[0]);
       res.json({
         success: true,
         message: "List deleted",
@@ -178,12 +161,12 @@ app.delete("/api/tasks/:id", (req, res) => {
         "DELETE FROM tasks WHERE id = ($1) RETURNING *;",
         [id]
       );
-      console.log(result.rows[0]);
       res.json({
         success: true,
         message: "Task deleted",
         deletedTask: result.rows[0],
       });
+      
     } catch (err) {
       console.error("Error deleting task: ", err);
       res.status(500).json({ success: false, message: "Server error" });
