@@ -22,8 +22,15 @@
     align-items: center;
 }
 
-.list-title h2{
-    margin:0;
+.list-title div :first-child{
+    margin: 0;
+    outline: none;
+    border: none;
+    background-color: #1E201E;
+    font-size: 1.5em;
+    font-weight: 700;
+    padding: 0;
+    font-family: Poppins;
 }
 
 .list-title p {
@@ -61,24 +68,27 @@
     padding: 10px;
 }
 
+/* Review this */
 .task, .add-task{
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     min-height: 35px;
     background-color: #3C3D37;
-    margin: 5px 0;
     border-radius: 5px;
+    flex-wrap: wrap;
     
 }
 
-.task, .add-task>input[type="text"], .task>:last-child{
+.task, .add-task, .add-task>input[type="text"], .task>:last-child{
     font-family: Geologica;
     font-size: 15px;
     font-weight: 400;
     background-color: #3C3D37;
     border: none;
     outline: none;
-    margin: 5px 0;
+    margin: 5px 0px;
+    padding-right:10px;
+    overflow-y: auto;
 }
 
 .add-task>input[type="text"]{
@@ -86,6 +96,8 @@
     flex:1;
 }
 
-.task>:last-child{
+.task>:last-child, .add-task>input[type="text"]{
     flex: 1;
+    align-self: center;
+    padding: 0;
 }

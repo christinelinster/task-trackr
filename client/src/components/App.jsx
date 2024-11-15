@@ -56,6 +56,31 @@ function App() {
     }
   }
 
+  async function handleEditList(listID, newListValue) {
+    try {
+      const response = await fetch(`/api/lists/${listID}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json", 
+        },
+        body: JSON.stringify({
+          list: newListValue,
+        }),
+      });
+
+      if(!response.ok){
+        throw new Error("Failed to update list name"); 
+      }
+
+      const data = response.json();
+      console.log("List updated: ", data);
+      fetchLists();
+
+    } catch (err) {
+      console.error("Error editing list name:", err)
+    }
+  }
+
   //Patch task from /api/tasks/:id
   async function handleEditTask(taskID, newTaskValue) {
     try {
@@ -98,6 +123,7 @@ function App() {
         onDeleteTask={handleDeleteTask}
         onUpdateTasks={fetchTasks}
         onEditTask={handleEditTask}
+        onEditList={handleEditList}
       />
     </div>
   );

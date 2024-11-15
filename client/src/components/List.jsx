@@ -11,10 +11,12 @@ function List({
   onDeleteTask,
   onUpdateTasks,
   onEditTask,
+  onEditList,
 }) {
   const [addTask, setAddTask] = useState({});
   const [editID, setEditID] = useState(null);
   const [editTask, setEditTask] = useState("");
+  const [editList, setEditList] = useState("");
 
   function countTasks(listID) {
     let listLength = tasks.filter((task) => task.list_id === listID).length;
@@ -23,9 +25,9 @@ function List({
       : `${listLength} tasks left`;
   }
 
-  function handleEdit(task) {
-    setEditID(task.id);
-    setEditTask(task.task);
+  function handleEdit(item) {
+    setEditID(item.id);
+    setEditTask(item.task) || setEditList(item.name);
   }
 
   async function handleEnter(e) {
@@ -39,9 +41,9 @@ function List({
   }
 
   async function handleOnBlur() {
-    await onEditTask(editID, editTask);
+    (await onEditTask(editID, editTask)) || onEditList(editID, editList);
     setEditID(null);
-    setEditTask("");
+    setEditTask("") || setEditList("");
   }
 
   function handleAddTask(e, listID) {
@@ -83,7 +85,18 @@ function List({
         <div className="list" key={list.id}>
           <div className="list-title">
             <div>
-              <h2>{list.name}</h2>
+              {editID === list.id ? (
+                <input
+                  autoFocus
+                  type="text"
+                  value={editList}
+                  onChange={(e) => setEditList(e.target.value)}
+                  onKeyDown={(e) => handleEnter(e)}
+                  onBlur={(e) => handleOnBlur(e)}
+                />
+              ) : (
+                <h2 onClick={() => handleEdit(list)}>{list.name}</h2>
+              )}
               <p>{countTasks(list.id)}</p>
             </div>
             <button onClick={() => onDeleteList(list.id)}>
