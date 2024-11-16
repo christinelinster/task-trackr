@@ -6,7 +6,6 @@ import ListMenu from "./ListMenu";
 function App() {
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
-  const [selectedLists, setSelectedLists] = useState([]);
 
   // Fetch the data from /api/tasks
   async function fetchTasks() {
@@ -114,28 +113,42 @@ function App() {
     fetchTasks();
   }, []);
 
-  const handleSelectedLists = (listId) => {
-    setSelectedLists((prevSelected) => {
-      if (prevSelected.includes(listId)) {
-        return prevSelected.filter((id) => id !== listId);
-      } else {
-        return [...prevSelected, listId];
+  async function handleSelectedLists(listID){
+    try {
+      const response = await fetch(`/api/selected-lists`, {
+        method: "PATCH",
+        headers:{
+          "Content-Type": "application/json", 
+        },
+        body: JSON.stringify({
+          listID: listID,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update selected lists");
       }
-    });
+
+      const data = response.json();
+      console.log("Selected Lists: ", data);
+      fetchLists();
+      
+    } catch (err) {
+      console.err("Error selecting list:", err);
+      throw err; 
+    } 
   };
 
   return (
     <div id="main">
       <ListMenu
         lists={lists}
-        selectedLists={selectedLists}
-        onSelectedLists = {handleSelectedLists}
+        onSelectedLists={handleSelectedLists}
       />
       <Header onUpdateLists={fetchLists} onSelectedLists = {handleSelectedLists}/>
       <List
         lists={lists}
         tasks={tasks}
-        selectedLists={selectedLists}
         onDeleteList={handleDeleteList}
         onDeleteTask={handleDeleteTask}
         onUpdateTasks={fetchTasks}

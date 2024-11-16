@@ -67,8 +67,8 @@ app.post("/api/lists", async (req, res) => {
 
   try {
     const result = await db.query(
-      "INSERT INTO lists (name) VALUES ($1) RETURNING *;",
-      [list]
+      "INSERT INTO lists (name, selected) VALUES ($1, $2) RETURNING *;",
+      [list, true]
     );
     res.status(201).json(result.rows[0]);
 
@@ -190,6 +190,21 @@ app.delete("/api/tasks/:id", (req, res) => {
     }
   }, 500);
 });
+
+app.patch("/api/selected-lists", async(req,res) => {
+  const {listID} = req.body;
+  try {
+    const result = await db.query(
+      "UPDATE lists SET selected = NOT selected WHERE id = ($1) RETURNING *;", [listID]
+    );
+    console.log(result.rows[0]);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error("Error selecting list: ", err);
+    res.status(500).json({success:false, message: "Server error"})
+  }
+
+})
 
 // Start the Express server
 app.listen(port, () => {

@@ -13,7 +13,10 @@ import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import ListRoundedIcon from "@mui/icons-material/ListRounded";
 import "../styles/ListMenu.css";
 
-function ListMenu({ lists, selectedLists, onSelectedLists}) {
+//add select all button 
+//add delete button 
+
+function ListMenu({ lists, onSelectedLists}) {
   const [open, setOpen] = useState(false);
 
   const toggleDrawer = (newOpen) => () => {
@@ -31,7 +34,7 @@ function ListMenu({ lists, selectedLists, onSelectedLists}) {
           >
             <ListItemButton>
               <ListItemIcon>
-                {selectedLists.includes(list.id) ? (
+                {list.selected ? (
                   <CheckBoxIcon />
                 ) : (
                   <CheckBoxOutlineBlankIcon />

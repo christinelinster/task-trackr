@@ -6,7 +6,6 @@ import("../styles/List.css");
 function List({
   lists,
   tasks,
-  selectedLists,
   onDeleteList,
   onDeleteTask,
   onUpdateLists,
@@ -107,7 +106,7 @@ function List({
   return (
     <div className="cards">
       {lists.map((list) => (
-        selectedLists.includes(list.id) ? ( <div className="list" key={list.id}>
+        list.selected ? ( <div className="list" key={list.id}>
           <div className="list-title">
             <div>
               {editListID === list.id ? (
