@@ -9,15 +9,17 @@ function List({
   tasks,
   onDeleteList,
   onDeleteTask,
-  onUpdateTasks,
   onUpdateLists,
-  onEditTask,
+  onUpdateTasks,
   onEditList,
+  onEditTask,
 }) {
   const [addTask, setAddTask] = useState({});
-  const [editID, setEditID] = useState(null);
-  const [editTask, setEditTask] = useState("");
+  const [editListID, setEditListID] = useState(null);
+  const [editTaskID, setEditTaskID] = useState(null);
   const [editList, setEditList] = useState("");
+  const [editTask, setEditTask] = useState("");
+
 
   function countTasks(listID) {
     let listLength = tasks.filter((task) => task.list_id === listID).length;
@@ -26,36 +28,45 @@ function List({
       : `${listLength} tasks left`;
   }
 
-  function handleEdit(item) {
-    setEditID(item.id);
-    setEditTask(item.task) || setEditList(item.name);
+  function handleEditTask(task){
+    setEditTaskID(task.id);
+    setEditTask(task.task);
+  }
+
+  function handleEditList(list){
+    setEditListID(list.id);
+    setEditList(list.name);
   }
 
   async function handleEnter(e) {
     if (e.keyCode === 13) {
-        try {
-          handleEditTask() || handleEditList();
-        } catch (err) {
-          console.error("Failed to edit task:", err);
-        }
+      try {
+        editTaskID ? handleSubmitEditTask() : handleSubmitEditList();
+      } catch (err) {
+        console.error("Failed to edit:", err);
+      }
       e.target.blur();
     }
   }
 
-  async function handleEditTask() {
-    await onEditTask(editID, editTask);
-    setEditID(null);
-    setEditTask("")
+  async function handleSubmitEditTask() {
+    if(editTask.trim() == ""){
+      await onDeleteTask(editTaskID);
+    } else {
+      await onEditTask(editTaskID, editTask.trim()); 
+    }
+    setEditTaskID(null);
+    setEditTask("");
   }
 
-  async function handleEditList(){
-    if(editList.replace(/\s+/g, "") == ""){
+  async function handleSubmitEditList() {
+    if (editList.trim() == "") {
       onUpdateLists();
     } else {
-      await onEditList(editID, editList);
-      setEditList(null);
-      setEditList("")
+      await onEditList(editListID, editList.trim());
     }
+    setEditListID(null);
+    setEditList("");
   }
 
   function handleAddTask(e, listID) {
@@ -65,10 +76,9 @@ function List({
     }));
   }
 
-  async function handleSubmit(e, listID) {
- if(addTask[listID].replace(/\s+/g, "") == ""){
-  return false;
- }
+  async function handleSubmitAddTask(e, listID) {
+    if (addTask[listID].replace(/\s+/g, "") == "") return false;
+
     e.preventDefault();
     try {
       const response = await fetch("/api/tasks", {
@@ -77,7 +87,7 @@ function List({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          addTask: addTask[listID],
+          addTask: addTask[listID].trim(),
           listID: listID,
         }),
       });
@@ -100,17 +110,17 @@ function List({
         <div className="list" key={list.id}>
           <div className="list-title">
             <div>
-              {editID === list.id ? (
+              {editListID === list.id ? (
                 <input
                   autoFocus
                   type="text"
                   value={editList}
                   onChange={(e) => setEditList(e.target.value)}
                   onKeyDown={(e) => handleEnter(e)}
-                  onBlur={(e) => handleEditList(e)}
+                  onBlur={handleSubmitEditList}
                 />
               ) : (
-                <h2 onClick={() => handleEdit(list)}>{list.name}</h2>
+                <h2 onClick={() => handleEditList(list)}>{list.name}</h2>
               )}
               <p>{countTasks(list.id)}</p>
             </div>
@@ -133,24 +143,24 @@ function List({
                       },
                     }}
                   />
-                  {editID === task.id ? (
+                  {editTaskID === task.id ? (
                     <input
                       autoFocus
                       type="text"
                       value={editTask}
                       onChange={(e) => setEditTask(e.target.value)}
                       onKeyDown={(e) => handleEnter(e)}
-                      onBlur={(e) => handleEditTask(e)}
+                      onBlur={handleSubmitEditTask}
                     />
                   ) : (
-                    <p onClick={() => handleEdit(task)}>{task.task}</p>
+                    <p onClick={() => handleEditTask(task)}>{task.task}</p>
                   )}
                 </div>
               ))}
 
             <form
               className="add-task"
-              onSubmit={(e) => handleSubmit(e, list.id)}
+              onSubmit={(e) => handleSubmitAddTask(e, list.id)}
             >
               <input
                 type="text"
