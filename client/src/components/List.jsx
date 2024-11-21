@@ -1,12 +1,12 @@
 import { useState } from "react";
-import("../styles/List.css");
-
 import DeleteIcon from "@mui/icons-material/Delete";
 import Radio from "@mui/material/Radio";
+import("../styles/List.css");
 
 function List({
   lists,
   tasks,
+  selectedLists,
   onDeleteList,
   onDeleteTask,
   onUpdateLists,
@@ -107,7 +107,7 @@ function List({
   return (
     <div className="cards">
       {lists.map((list) => (
-        <div className="list" key={list.id}>
+        selectedLists.includes(list.id) ? ( <div className="list" key={list.id}>
           <div className="list-title">
             <div>
               {editListID === list.id ? (
@@ -169,9 +169,10 @@ function List({
                 autoComplete="off"
                 onChange={(e) => handleAddTask(e, list.id)}
               />
+ 
             </form>
           </div>
-        </div>
+        </div>) : false
       ))}
     </div>
   );

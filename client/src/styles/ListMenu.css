@@ -1,0 +1,17 @@
+#list-menu{
+    margin-left: 64px;
+}
+
+.custom-icon:focus{
+    outline: none;
+    border: none;
+}
+
+.custom-icon .MuiSvgIcon-root:hover{
+    background-color:  rgba(222, 208, 182, 0.75);
+}
+
+
+.custom-drawer .MuiDrawer-paper{
+    background-color:  rgba(222, 208, 182);
+}
