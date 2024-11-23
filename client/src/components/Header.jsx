@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "../styles/Header.css"
 
-function Header({onUpdateLists, onSelectedLists}) {
+function Header({onUpdateLists}) {
 
   // Get current date
   const today = new Date().toLocaleDateString("default", {
@@ -27,7 +27,6 @@ function Header({onUpdateLists, onSelectedLists}) {
         });
 
         const data = await response.json();
-        onSelectedLists(data.id);
         
         console.log("New list added: ", data);
         setList("");
