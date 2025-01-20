@@ -2,6 +2,7 @@ import express from "express";
 import pg from "pg";
 import cors from "cors";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 
 dotenv.config();
 
@@ -38,12 +39,37 @@ let lists = [
   { id: 2, name: "General" },
 ];
 
+app.post("/api/register", async (req, res) => {
+  const saltRounds = 10;
+  const { username, password } = req.body;
+  bcrypt.hash(password, saltRounds, async function (err, hash) {
+    if (err) {
+      console.error("Error hashing password:", err);
+      res.status(500).json({ error: "Error hashing password" });
+      return;
+    }
+
+    try {
+      console.log("Attempting to insert user into database");
+      const result = await db.query(
+        "INSERT INTO USERS (username, password) VALUES ($1, $2) RETURNING *;",
+        [username, hash]
+      );
+      res.json(result.rows[0]);
+    } catch (err) {
+      console.error("Database error:", err);
+      res.status(500).json({ error: "Inernal Server Error" });
+    }
+  });
+});
+
 // Route to fetch all items from the "items" table
 app.get("/api/tasks", async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM tasks WHERE task != '' ORDER BY id ASC");
+    const result = await db.query(
+      "SELECT * FROM tasks WHERE task != '' ORDER BY id ASC"
+    );
     res.json(result.rows);
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server Error" });
@@ -55,7 +81,6 @@ app.get("/api/lists", async (req, res) => {
   try {
     const result = await db.query("SELECT * FROM lists ORDER BY id ASC");
     res.json(result.rows);
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server Error" });
@@ -71,7 +96,6 @@ app.post("/api/lists", async (req, res) => {
       [list, true]
     );
     res.status(201).json(result.rows[0]);
-
   } catch (err) {
     console.error("Error inserting list:", err);
     res.status(500).json({ error: "Server error" });
@@ -88,51 +112,50 @@ app.post("/api/tasks", async (req, res) => {
       [addTask, listID]
     );
     res.status(201).json(result.rows[0]);
-
   } catch (err) {
     console.error("Error inserting task", err);
     res.status(500).json({ error: "Server error" });
   }
 });
 
-app.patch("/api/lists/:id", async(req,res) => {
-  const {id} = req.params;
-  const {list} = req.body;
-  
+app.patch("/api/lists/:id", async (req, res) => {
+  const { id } = req.params;
+  const { list } = req.body;
+
   try {
     const result = await db.query(
-      "UPDATE lists SET name = ($1) WHERE id = ($2) RETURNING *", [list, id]
-    )
-    res.status(201).json(result.rows[0]);
-    
-  } catch (err) {
-    console.error("Error editing list: ", err)
-    res.status(500).json({success:false, message: "Server error"})
-  }
-})
-
-app.patch("/api/tasks/:id", async(req,res) => {
-  console.log("Edit request received for task ID:", req.params.id);
-
-  const {id} = req.params;
-  const {task} = req.body;
-  try {
-    const result = await db.query(
-      "UPDATE tasks SET task=($1) WHERE id =($2) RETURNING *;", [task, id]
+      "UPDATE lists SET name = ($1) WHERE id = ($2) RETURNING *",
+      [list, id]
     );
     res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error("Error editing list: ", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 
+app.patch("/api/tasks/:id", async (req, res) => {
+  console.log("Edit request received for task ID:", req.params.id);
+
+  const { id } = req.params;
+  const { task } = req.body;
+  try {
+    const result = await db.query(
+      "UPDATE tasks SET task=($1) WHERE id =($2) RETURNING *;",
+      [task, id]
+    );
+    res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error("Error editing task:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
-})
+});
 
 app.delete("/api/lists/:id", async (req, res) => {
   console.log("Delete request received for list ID:", req.params.id);
 
   try {
-    const { id } = req.params; 
+    const { id } = req.params;
 
     const hasTasks = await db.query(
       "SELECT * FROM tasks WHERE list_id = ($1);",
@@ -140,9 +163,7 @@ app.delete("/api/lists/:id", async (req, res) => {
     );
 
     if (hasTasks.rowCount > 0) {
-      await db.query("DELETE FROM tasks WHERE list_id = ($1);", [
-        id,
-      ]);
+      await db.query("DELETE FROM tasks WHERE list_id = ($1);", [id]);
       const result = await db.query(
         "DELETE FROM lists WHERE id = ($1) RETURNING *",
         [id]
@@ -152,7 +173,6 @@ app.delete("/api/lists/:id", async (req, res) => {
         message: "List deleted",
         deletedList: result.rows[0],
       });
-
     } else {
       const result = await db.query(
         "DELETE FROM lists WHERE id = ($1) RETURNING *",
@@ -183,7 +203,6 @@ app.delete("/api/tasks/:id", (req, res) => {
         message: "Task deleted",
         deletedTask: result.rows[0],
       });
-      
     } catch (err) {
       console.error("Error deleting task: ", err);
       res.status(500).json({ success: false, message: "Server error" });
@@ -191,20 +210,20 @@ app.delete("/api/tasks/:id", (req, res) => {
   }, 500);
 });
 
-app.patch("/api/selected-lists", async(req,res) => {
-  const {listID} = req.body;
+app.patch("/api/selected-lists", async (req, res) => {
+  const { listID } = req.body;
   try {
     const result = await db.query(
-      "UPDATE lists SET selected = NOT selected WHERE id = ($1) RETURNING *;", [listID]
+      "UPDATE lists SET selected = NOT selected WHERE id = ($1) RETURNING *;",
+      [listID]
     );
     console.log(result.rows[0]);
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error("Error selecting list: ", err);
-    res.status(500).json({success:false, message: "Server error"})
+    res.status(500).json({ success: false, message: "Server error" });
   }
-
-})
+});
 
 // Start the Express server
 app.listen(port, () => {

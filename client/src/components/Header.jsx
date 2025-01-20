@@ -1,14 +1,15 @@
 import { useState } from "react";
-import "../styles/Header.css"
+import "../styles/header.css"
+import ListMenu from "./ListMenu";
 
-function Header({onUpdateLists}) {
+function Header({lists, onUpdateLists, onSelectedLists}) {
 
   // Get current date
-  const today = new Date().toLocaleDateString("default", {
-    month: "long",
-    year: "numeric",
-    day: "numeric",
-  });
+  // const today = new Date().toLocaleDateString("default", {
+  //   month: "long",
+  //   year: "numeric",
+  //   day: "numeric",
+  // });
 
   const [list, setList] = useState("");
 
@@ -39,9 +40,6 @@ function Header({onUpdateLists}) {
 
   return (
     <div id="header">
-      <h1>TASK TRACKR</h1>
-      <p className="date">{today}</p>
-
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -52,6 +50,7 @@ function Header({onUpdateLists}) {
         />
         <button type="submit"> + New List</button>
       </form>
+      <ListMenu lists={lists} onSelectedLists={onSelectedLists} />
     </div>
   );
 }

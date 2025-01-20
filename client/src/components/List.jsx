@@ -1,7 +1,7 @@
 import { useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Radio from "@mui/material/Radio";
-import("../styles/List.css");
+import("../styles/list.css");
 
 function List({
   lists,

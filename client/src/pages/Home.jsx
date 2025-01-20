@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import Header from "./Header";
-import List from "./List";
-import ListMenu from "./ListMenu";
+import Header from "../components/Header";
+import List from "../components/List";
 
-function App() {
+
+export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
 
@@ -113,12 +113,12 @@ function App() {
     fetchTasks();
   }, []);
 
-  async function handleSelectedLists(listID){
+  async function handleSelectedLists(listID) {
     try {
       const response = await fetch(`/api/selected-lists`, {
         method: "PATCH",
-        headers:{
-          "Content-Type": "application/json", 
+        headers: {
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           listID: listID,
@@ -132,20 +132,19 @@ function App() {
       const data = response.json();
       console.log("Selected Lists: ", data);
       fetchLists();
-      
     } catch (err) {
       console.err("Error selecting list:", err);
-      throw err; 
-    } 
-  };
+      throw err;
+    }
+  }
 
   return (
     <div id="main">
-      <ListMenu
-        lists={lists}
+      <Header
+      lists={lists}
+        onUpdateLists={fetchLists}
         onSelectedLists={handleSelectedLists}
       />
-      <Header onUpdateLists={fetchLists} onSelectedLists = {handleSelectedLists}/>
       <List
         lists={lists}
         tasks={tasks}
@@ -159,5 +158,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

@@ -1,8 +1,8 @@
 #header {
   display: flex;
-  flex-direction: column;
-  justify-content: stretch;
+  justify-content: center;
   align-items: center;
+  margin: 50px 15px;
 }
 
 h1 {
@@ -24,11 +24,12 @@ color: rgba(222, 208, 182, 0.50);
 }
 
 #header form{
-    margin: 2rem 0 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #header input[type="text"] {
-  text-align: left;
   background-color: #d9d9d9;
   color: rgba(0,0,0, 0.7);
   border: none;
@@ -44,7 +45,7 @@ color: rgba(222, 208, 182, 0.50);
 }
 
 #header button[type="submit"]{
-    margin-left: 15px;
+    margin: 0 15px;
     background-color: rgba(222, 208, 182, 0.50);
     border-radius: 10px;
     border:none;
