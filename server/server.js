@@ -63,6 +63,41 @@ app.post("/api/register", async (req, res) => {
   });
 });
 
+app.post("/api/login", async(req,res) => {
+  try {
+    const {username, password} = req.body; 
+    const result = await db.query("SELECT * FROM users WHERE username = $1", [username]);
+    if(result.rowCount === 0){
+      res.status(401).json({error:"Invalid username or password"});
+      return;
+    }
+    const user = result.rows[0];
+    bcrypt.compare(password, user.password, function(err, result){
+      if(err){
+        console.error("Error comparing passwords:", err);
+        res.status(500).json({error:"Internal Server Error"});
+        return
+      }
+      try {
+        if(result){
+          res.json({message:"User logged in"});
+        }else{
+          res.status(401).json({error:"Invalid username or password"});
+        }
+      } catch (err) {
+        console.error("Error logging in:", err);
+        res.status(500).json({error:"Internal Server Error"})
+      }
+     
+    })
+
+    
+  } catch (err) {
+    console.error("Error logging in:", err);
+    res.status(500).json({error:"Internal Server "})
+  }
+})
+
 // Route to fetch all items from the "items" table
 app.get("/api/tasks", async (req, res) => {
   try {
