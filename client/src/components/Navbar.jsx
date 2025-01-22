@@ -11,6 +11,7 @@ import Button from '@mui/material/Button';
 
 export default function Navbar({setIsAuthenticated}) {
   function handleLogout() {
+    localStorage.removeItem("token")
     setIsAuthenticated(false);
   }
 

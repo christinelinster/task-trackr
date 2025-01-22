@@ -19,6 +19,7 @@ export default function Login({ setIsAuthenticated }) {
     }else{
         const data = await response.json();
         console.log("User successfully logged in ", data);
+        localStorage.setItem("token", data.token);
         setIsAuthenticated(true);
     }
   }

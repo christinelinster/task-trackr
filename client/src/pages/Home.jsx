@@ -8,6 +8,28 @@ export default function Home({setIsAuthenticated}) {
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
 
+
+  async function fetchHomeData(){
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch("/api/home", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch home data");
+      }
+      const data = await response.json();
+      setTasks(data.tasks);
+      setLists(data.lists);
+      
+    } catch (err) {
+      console.error("Error fetching home data:", err)
+    }
+  }
+
   // Fetch the data from /api/tasks
   async function fetchTasks() {
     try {
@@ -75,7 +97,7 @@ export default function Home({setIsAuthenticated}) {
         throw new Error("Failed to update list name");
       }
 
-      const data = response.json();
+      const data = await response.json();
       console.log("List updated: ", data);
       fetchLists();
     } catch (err) {
@@ -99,7 +121,7 @@ export default function Home({setIsAuthenticated}) {
       if (!response.ok) {
         throw new Error("Failed to update task");
       }
-      const data = response.json();
+      const data = await response.json();
       console.log("Task updated: ", data);
       fetchTasks();
     } catch (err) {
@@ -107,12 +129,6 @@ export default function Home({setIsAuthenticated}) {
       throw err;
     }
   }
-
-  // Initial data fetching
-  useEffect(() => {
-    fetchLists();
-    fetchTasks();
-  }, []);
 
   async function handleSelectedLists(listID) {
     try {
@@ -130,7 +146,7 @@ export default function Home({setIsAuthenticated}) {
         throw new Error("Failed to update selected lists");
       }
 
-      const data = response.json();
+      const data = await response.json();
       console.log("Selected Lists: ", data);
       fetchLists();
     } catch (err) {
@@ -138,6 +154,11 @@ export default function Home({setIsAuthenticated}) {
       throw err;
     }
   }
+
+    // Initial data fetching
+    useEffect(() => {
+      fetchHomeData();
+    }, []);
 
   return (
     <div id="main">
