@@ -17,6 +17,7 @@ function Header({lists, onUpdateLists, onSelectedLists}) {
     e.preventDefault();
 
     try {
+        if(list.trim() == "") return;
         const response = await fetch("/api/lists",{
             method: "POST",
             headers: {

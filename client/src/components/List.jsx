@@ -76,9 +76,9 @@ function List({
   }
 
   async function handleSubmitAddTask(e, listID) {
-    if (addTask[listID].replace(/\s+/g, "") == "") return false;
-
     e.preventDefault();
+    if (addTask[listID].trim() == "") return;
+
     try {
       const response = await fetch("/api/tasks", {
         method: "POST",
