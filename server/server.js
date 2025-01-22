@@ -3,6 +3,7 @@ import pg from "pg";
 import cors from "cors";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 dotenv.config();
 
@@ -29,15 +30,17 @@ db.connect()
   .then(() => console.log("Connected to PostgreSQL"))
   .catch((err) => console.error("Connection error", err.stack));
 
-let tasks = [
-  { id: 1, task: "Buy milk", list_id: "General" },
-  { id: 2, task: "Finish homework", list_id: "Learning" },
-];
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (token == null) return res.sendStatus(401);
 
-let lists = [
-  { id: 1, name: "Learning" },
-  { id: 2, name: "General" },
-];
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
 
 app.post("/api/register", async (req, res) => {
   const saltRounds = 10;
@@ -63,40 +66,68 @@ app.post("/api/register", async (req, res) => {
   });
 });
 
-app.post("/api/login", async(req,res) => {
+app.post("/api/login", async (req, res) => {
   try {
-    const {username, password} = req.body; 
-    const result = await db.query("SELECT * FROM users WHERE username = $1", [username]);
-    if(result.rowCount === 0){
-      res.status(401).json({error:"Invalid username or password"});
+    const { username, password } = req.body;
+    const result = await db.query("SELECT * FROM users WHERE username = $1", [
+      username,
+    ]);
+    if (result.rowCount === 0) {
+      res.status(401).json({ error: "Invalid username or password" });
       return;
     }
     const user = result.rows[0];
-    bcrypt.compare(password, user.password, function(err, result){
-      if(err){
+    bcrypt.compare(password, user.password, function (err, isMatch) {
+      if (err) {
         console.error("Error comparing passwords:", err);
-        res.status(500).json({error:"Internal Server Error"});
-        return
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
       }
       try {
-        if(result){
-          res.json({message:"User logged in"});
-        }else{
-          res.status(401).json({error:"Invalid username or password"});
+        if (isMatch) {
+          jwt.sign(
+            { user },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: "1h" },
+            (err, token) => {
+              if (err) {
+                console.error("Error generating token:", err);
+                res.status(500).json({ error: "Internal Server Error" });
+                return;
+              }
+              res.json({ token });
+            }
+          );
+        } else {
+          res.status(401).json({ error: "Invalid username or password" });
         }
       } catch (err) {
         console.error("Error logging in:", err);
-        res.status(500).json({error:"Internal Server Error"})
+        res.status(500).json({ error: "Internal Server Error" });
       }
-     
-    })
-
-    
+    });
   } catch (err) {
     console.error("Error logging in:", err);
-    res.status(500).json({error:"Internal Server "})
+    res.status(500).json({ error: "Internal Server " });
   }
-})
+});
+
+app.get("/api/home", authenticateToken, async (req, res) => {
+  try {
+    const taskResult = await db.query(
+      "SELECT * FROM tasks WHERE task != '' ORDER BY id ASC"
+    );
+    const listResult = await db.query("SELECT * FROM lists ORDER by id ASC");
+
+    res.json({
+      tasks: taskResult.rows,
+      lists: listResult.rows,
+    });
+  } catch (err) {
+    console.error("Error getting the home page:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 // Route to fetch all items from the "items" table
 app.get("/api/tasks", async (req, res) => {
