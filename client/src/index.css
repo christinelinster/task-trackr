@@ -16,7 +16,7 @@
 body {
   margin: 0;
   min-width: 700px;
-  min-height: 100vh;
+  max-height: 100vh;
 }
 
 

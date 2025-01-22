@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import List from "../components/List";
+import Navbar from "../components/Navbar";
 
 
-export default function Home() {
+export default function Home({setIsAuthenticated}) {
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
 
@@ -140,6 +141,7 @@ export default function Home() {
 
   return (
     <div id="main">
+      <Navbar setIsAuthenticated={setIsAuthenticated}/>
       <Header
       lists={lists}
         onUpdateLists={fetchLists}

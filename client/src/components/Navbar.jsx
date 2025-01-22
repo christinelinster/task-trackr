@@ -9,7 +9,11 @@ import Button from '@mui/material/Button';
 
 
 
-export default function Navbar() {
+export default function Navbar({setIsAuthenticated}) {
+  function handleLogout() {
+    setIsAuthenticated(false);
+  }
+
   return (
     <Box sx={{ flexGrow: 1}}>
       <AppBar position="static" elevation={0} sx={{ backgroundColor: '#1E201E'}}>
@@ -19,9 +23,7 @@ export default function Navbar() {
             <Link to="/" >Task Trackr</Link>
           </Typography>
 
-         
-
-          <Button color="inherit"><Link to="/login">Login</Link></Button>
+          <Button color="inherit" onClick={handleLogout}><Link to="/login">Log Out</Link></Button>
         </Toolbar>
       </AppBar>
     </Box>
