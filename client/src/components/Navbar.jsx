@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import '../styles/navbar.css';
 
 import AppBar from '@mui/material/AppBar';
@@ -10,9 +11,31 @@ import Button from '@mui/material/Button';
 
 
 export default function Navbar({setIsAuthenticated}) {
-  function handleLogout() {
-    localStorage.removeItem("token")
-    setIsAuthenticated(false);
+
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+ 
+    const refreshToken = localStorage.getItem("refreshToken");
+    try {
+      localStorage.removeItem("token")
+      setIsAuthenticated(false);
+      navigate("/login")
+      const response = await fetch("/api/logout", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token: refreshToken }),
+      });
+      const data = response.status; 
+      console.log("Successfuly logged out:", data); 
+
+    } catch (err) {
+      console.error("Error logging out:", err)
+      
+    }
+
   }
 
   return (

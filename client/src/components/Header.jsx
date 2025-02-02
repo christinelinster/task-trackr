@@ -4,24 +4,18 @@ import ListMenu from "./ListMenu";
 
 function Header({lists, onUpdateLists, onSelectedLists}) {
 
-  // Get current date
-  // const today = new Date().toLocaleDateString("default", {
-  //   month: "long",
-  //   year: "numeric",
-  //   day: "numeric",
-  // });
-
   const [list, setList] = useState("");
 
   async function handleSubmit(e){
     e.preventDefault();
-
+  
     try {
         if(list.trim() == "") return;
         const response = await fetch("/api/lists",{
             method: "POST",
             headers: {
                 "Content-Type": "application/json", // Set the content type to JSON
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
               },
             body: JSON.stringify({
                 list:list

@@ -10,13 +10,12 @@ dotenv.config();
 const app = express();
 const port = 3000;
 
-// Enable CORS for frontend communication
 app.use(cors());
 
-// Middleware to parse JSON
 app.use(express.json());
 
-// PostgreSQL Connection Configuration
+let refreshTokens = []; 
+
 const db = new pg.Client({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -40,6 +39,10 @@ function authenticateToken(req, res, next) {
     req.user = user;
     next();
   });
+}
+
+function generateAccessToken(user){
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '15s'})
 }
 
 app.post("/api/register", async (req, res) => {
@@ -67,49 +70,44 @@ app.post("/api/register", async (req, res) => {
 });
 
 app.post("/api/login", async (req, res) => {
+  const { username, password } = req.body;
+  const result = await db.query("SELECT * FROM users WHERE username = $1", [
+    username,
+  ]);
+  if (result.rowCount === 0) {
+    res.status(401).json({ error: "Invalid username" });
+    return;
+  }
+  const user = result.rows[0];
   try {
-    const { username, password } = req.body;
-    const result = await db.query("SELECT * FROM users WHERE username = $1", [
-      username,
-    ]);
-    if (result.rowCount === 0) {
-      res.status(401).json({ error: "Invalid username or password" });
-      return;
+    if( await bcrypt.compare(password, user.password)) {
+          const accessToken = generateAccessToken({user: user.username})
+          const refreshToken = jwt.sign({user: user.username}, process.env.REFRESH_TOKEN_SECRET);
+          refreshTokens.push(refreshToken);
+          res.json({ accessToken, refreshToken });
+    }else{
+      res.send("Not Allowed");
     }
-    const user = result.rows[0];
-    bcrypt.compare(password, user.password, function (err, isMatch) {
-      if (err) {
-        console.error("Error comparing passwords:", err);
-        res.status(500).json({ error: "Internal Server Error" });
-        return;
-      }
-      try {
-        if (isMatch) {
-          jwt.sign(
-            { user },
-            process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: "1h" },
-            (err, token) => {
-              if (err) {
-                console.error("Error generating token:", err);
-                res.status(500).json({ error: "Internal Server Error" });
-                return;
-              }
-              res.json({ token });
-            }
-          );
-        } else {
-          res.status(401).json({ error: "Invalid username or password" });
-        }
-      } catch (err) {
-        console.error("Error logging in:", err);
-        res.status(500).json({ error: "Internal Server Error" });
-      }
-    });
   } catch (err) {
     console.error("Error logging in:", err);
     res.status(500).json({ error: "Internal Server " });
   }
+});
+
+app.delete("/api/logout", (req,res) => {
+   refreshTokens = refreshTokens.filter(token => token !== req.body.token)
+   res.sendStatus(204); 
+})
+
+app.post("/api/token", (req, res) => {
+  const refreshToken = req.body.token;
+  if (refreshToken == null) return res.sendStatus(401);
+  if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    const accessToken = generateAccessToken({user: user.username});
+    res.json({ accessToken });
+  }); 
 });
 
 app.get("/api/home", authenticateToken, async (req, res) => {
@@ -130,7 +128,7 @@ app.get("/api/home", authenticateToken, async (req, res) => {
 });
 
 // Route to fetch all items from the "items" table
-app.get("/api/tasks", async (req, res) => {
+app.get("/api/tasks", authenticateToken, async (req, res) => {
   try {
     const result = await db.query(
       "SELECT * FROM tasks WHERE task != '' ORDER BY id ASC"
@@ -143,7 +141,7 @@ app.get("/api/tasks", async (req, res) => {
 });
 
 // Route to fetch all items from the "lists" table
-app.get("/api/lists", async (req, res) => {
+app.get("/api/lists", authenticateToken, async (req, res) => {
   try {
     const result = await db.query("SELECT * FROM lists ORDER BY id ASC");
     res.json(result.rows);
@@ -153,7 +151,7 @@ app.get("/api/lists", async (req, res) => {
   }
 });
 
-app.post("/api/lists", async (req, res) => {
+app.post("/api/lists", authenticateToken, async (req, res) => {
   const { list } = req.body;
 
   try {
@@ -168,7 +166,7 @@ app.post("/api/lists", async (req, res) => {
   }
 });
 
-app.post("/api/tasks", async (req, res) => {
+app.post("/api/tasks", authenticateToken, async (req, res) => {
   const { addTask } = req.body;
   const { listID } = req.body;
 
@@ -184,7 +182,7 @@ app.post("/api/tasks", async (req, res) => {
   }
 });
 
-app.patch("/api/lists/:id", async (req, res) => {
+app.patch("/api/lists/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { list } = req.body;
 
@@ -200,7 +198,7 @@ app.patch("/api/lists/:id", async (req, res) => {
   }
 });
 
-app.patch("/api/tasks/:id", async (req, res) => {
+app.patch("/api/tasks/:id", authenticateToken, async (req, res) => {
   console.log("Edit request received for task ID:", req.params.id);
 
   const { id } = req.params;
@@ -217,7 +215,7 @@ app.patch("/api/tasks/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/lists/:id", async (req, res) => {
+app.delete("/api/lists/:id", authenticateToken, async (req, res) => {
   console.log("Delete request received for list ID:", req.params.id);
 
   try {
@@ -256,7 +254,7 @@ app.delete("/api/lists/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/tasks/:id", (req, res) => {
+app.delete("/api/tasks/:id", authenticateToken, (req, res) => {
   const { id } = req.params;
   setTimeout(async () => {
     try {
@@ -276,7 +274,7 @@ app.delete("/api/tasks/:id", (req, res) => {
   }, 500);
 });
 
-app.patch("/api/selected-lists", async (req, res) => {
+app.patch("/api/selected-lists", authenticateToken, async (req, res) => {
   const { listID } = req.body;
   try {
     const result = await db.query(

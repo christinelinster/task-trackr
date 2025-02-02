@@ -1,31 +1,38 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState} from "react";
 import Header from "../components/Header";
 import List from "../components/List";
 import Navbar from "../components/Navbar";
 
 
 export default function Home({setIsAuthenticated}) {
+
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
 
+  
 
   async function fetchHomeData(){
-    const token = localStorage.getItem('token');
+    const accessToken = localStorage.getItem('accessToken');
     try {
       const response = await fetch("/api/home", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch home data");
+      if(response.status === 403){
+        refreshAccessToken(); 
       }
-      const data = await response.json();
-      setTasks(data.tasks);
-      setLists(data.lists);
-      
+
+      if (!response.ok) {
+        setIsAuthenticated(false);
+        throw new Error("Failed to fetch home data");
+      } 
+        const data = await response.json();
+        setTasks(data.tasks);
+        setLists(data.lists);
     } catch (err) {
+      console.log(err);
       console.error("Error fetching home data:", err)
     }
   }
@@ -33,7 +40,11 @@ export default function Home({setIsAuthenticated}) {
   // Fetch the data from /api/tasks
   async function fetchTasks() {
     try {
-      const response = await fetch("/api/tasks");
+      const response = await fetch("/api/tasks", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        }
+      });
       const data = await response.json();
       setTasks(data);
     } catch (err) {
@@ -44,7 +55,11 @@ export default function Home({setIsAuthenticated}) {
   // Fetch the data from /api/lists
   async function fetchLists() {
     try {
-      const response = await fetch("/api/lists");
+      const response = await fetch("/api/lists", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        }
+      });
       const data = await response.json();
       setLists(data);
     } catch (err) {
@@ -52,11 +67,33 @@ export default function Home({setIsAuthenticated}) {
     }
   }
 
+  const refreshAccessToken = async () => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    const response = await fetch("/api/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token: refreshToken }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      localStorage.setItem("accessToken", data.accessToken);
+      return data.accessToken;
+    } else {
+      throw new Error("Failed to refresh access token");
+    }
+  };
+
   // Delete list from /api/lists/:id
   async function handleDeleteList(listID) {
     try {
       const response = await fetch(`/api/lists/${listID}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
       });
 
       const data = await response.json();
@@ -72,6 +109,9 @@ export default function Home({setIsAuthenticated}) {
     try {
       const response = await fetch(`/api/tasks/${taskID}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
       });
       const data = await response.json();
       console.log("Task deleted: ", data);
@@ -87,6 +127,7 @@ export default function Home({setIsAuthenticated}) {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
         body: JSON.stringify({
           list: newListValue,
@@ -112,6 +153,7 @@ export default function Home({setIsAuthenticated}) {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
         body: JSON.stringify({
           task: newTaskValue,
@@ -136,6 +178,7 @@ export default function Home({setIsAuthenticated}) {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
         body: JSON.stringify({
           listID: listID,

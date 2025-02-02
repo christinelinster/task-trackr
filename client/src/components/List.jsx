@@ -77,13 +77,14 @@ function List({
 
   async function handleSubmitAddTask(e, listID) {
     e.preventDefault();
-    if (addTask[listID].trim() == "") return;
+    if (!addTask[listID] || addTask[listID].trim() == "") return;
 
     try {
       const response = await fetch("/api/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
         body: JSON.stringify({
           addTask: addTask[listID].trim(),
