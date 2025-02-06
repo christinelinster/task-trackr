@@ -18,9 +18,6 @@ export default function Navbar({setIsAuthenticated}) {
  
     const refreshToken = localStorage.getItem("refreshToken");
     try {
-      localStorage.removeItem("token")
-      setIsAuthenticated(false);
-      navigate("/login")
       const response = await fetch("/api/logout", {
         method: "DELETE",
         headers: {
@@ -28,6 +25,10 @@ export default function Navbar({setIsAuthenticated}) {
         },
         body: JSON.stringify({ token: refreshToken }),
       });
+
+      localStorage.removeItem("accessToken")
+      setIsAuthenticated(false);
+      navigate("/login")
       const data = response.status; 
       console.log("Successfuly logged out:", data); 
 
