@@ -4,10 +4,11 @@ export default function Login({ setIsAuthenticated }) {
   async function handleLogin(e) {
     e.preventDefault();
 
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
     const username = e.target.username.value;
     const password = e.target.password.value;
 
-    const response = await fetch("/api/login", {
+    const response = await fetch(`${API_URL}/api/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

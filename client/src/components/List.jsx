@@ -79,8 +79,10 @@ function List({
     e.preventDefault();
     if (!addTask[listID] || addTask[listID].trim() == "") return;
 
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
+
     try {
-      const response = await fetch("/api/tasks", {
+      const response = await fetch(`${API_URL}/api/tasks`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

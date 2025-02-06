@@ -17,8 +17,9 @@ export default function Navbar({setIsAuthenticated}) {
   async function handleLogout() {
  
     const refreshToken = localStorage.getItem("refreshToken");
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
     try {
-      const response = await fetch("/api/logout", {
+      const response = await fetch(`${API_URL}/api/logout`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

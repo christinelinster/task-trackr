@@ -12,9 +12,10 @@ export default function Home({setIsAuthenticated}) {
   
 
   async function fetchHomeData(){
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"
     const accessToken = localStorage.getItem('accessToken');
     try {
-      const response = await fetch("/api/home", {
+      const response = await fetch(`${API_URL}/api/home`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -39,8 +40,9 @@ export default function Home({setIsAuthenticated}) {
 
   // Fetch the data from /api/tasks
   async function fetchTasks() {
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
     try {
-      const response = await fetch("/api/tasks", {
+      const response = await fetch(`${API_URL}/api/tasks`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         }
@@ -54,8 +56,9 @@ export default function Home({setIsAuthenticated}) {
 
   // Fetch the data from /api/lists
   async function fetchLists() {
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
     try {
-      const response = await fetch("/api/lists", {
+      const response = await fetch(`${API_URL}/api/lists`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         }
@@ -68,8 +71,9 @@ export default function Home({setIsAuthenticated}) {
   }
 
   const refreshAccessToken = async () => {
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
     const refreshToken = localStorage.getItem("refreshToken");
-    const response = await fetch("/api/token", {
+    const response = await fetch(`${API_URL}/api/token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -88,8 +92,9 @@ export default function Home({setIsAuthenticated}) {
 
   // Delete list from /api/lists/:id
   async function handleDeleteList(listID) {
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
     try {
-      const response = await fetch(`/api/lists/${listID}`, {
+      const response = await fetch(`${API_URL}/api/lists/${listID}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -106,8 +111,9 @@ export default function Home({setIsAuthenticated}) {
 
   // Delete task from /api/tasks/:id
   async function handleDeleteTask(taskID) {
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
     try {
-      const response = await fetch(`/api/tasks/${taskID}`, {
+      const response = await fetch(`${API_URL}/api/tasks/${taskID}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -122,8 +128,9 @@ export default function Home({setIsAuthenticated}) {
   }
 
   async function handleEditList(listID, newListValue) {
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
     try {
-      const response = await fetch(`/api/lists/${listID}`, {
+      const response = await fetch(`${API_URL}/api/lists/${listID}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -148,8 +155,9 @@ export default function Home({setIsAuthenticated}) {
 
   //Patch task from /api/tasks/:id
   async function handleEditTask(taskID, newTaskValue) {
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
     try {
-      const response = await fetch(`/api/tasks/${taskID}`, {
+      const response = await fetch(`${API_URL}/api/tasks/${taskID}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -173,8 +181,9 @@ export default function Home({setIsAuthenticated}) {
   }
 
   async function handleSelectedLists(listID) {
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
     try {
-      const response = await fetch(`/api/selected-lists`, {
+      const response = await fetch(`${API_URL}/api/selected-lists`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

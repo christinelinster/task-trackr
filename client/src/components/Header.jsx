@@ -8,10 +8,12 @@ function Header({lists, onUpdateLists, onSelectedLists}) {
 
   async function handleSubmit(e){
     e.preventDefault();
+
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
   
     try {
         if(list.trim() == "") return;
-        const response = await fetch("/api/lists",{
+        const response = await fetch(`${API_URL}/api/lists`,{
             method: "POST",
             headers: {
                 "Content-Type": "application/json", // Set the content type to JSON
