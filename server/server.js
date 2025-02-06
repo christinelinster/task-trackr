@@ -1,9 +1,10 @@
 import express from "express";
-import pg from "pg";
 import cors from "cors";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { Pool } from 'pg';
+
 
 dotenv.config();
 
@@ -11,23 +12,28 @@ const app = express();
 const port = 3000;
 
 app.use(cors());
-
 app.use(express.json());
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
 
 let refreshTokens = []; 
 
-const db = new pg.Client({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
-});
+// const pool = new pg.Client({
+//   user: process.env.pool_USER,
+//   host: process.env.pool_HOST,
+//   database: process.env.pool_NAME,
+//   password: process.env.pool_PASSWORD,
+//   port: process.env.pool_PORT,
+// });
 
-// Connect to the PostgreSQL database
-db.connect()
-  .then(() => console.log("Connected to PostgreSQL"))
-  .catch((err) => console.error("Connection error", err.stack));
+// pool.connect()
+//   .then(() => console.log("Connected to PostgreSQL"))
+//   .catch((err) => console.error("Connection error", err.stack));
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -57,7 +63,7 @@ app.post("/api/register", async (req, res) => {
 
     try {
       console.log("Attempting to insert user into database");
-      const result = await db.query(
+      const result = await pool.query(
         "INSERT INTO USERS (username, password) VALUES ($1, $2) RETURNING *;",
         [username, hash]
       );
@@ -71,7 +77,7 @@ app.post("/api/register", async (req, res) => {
 
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
-  const result = await db.query("SELECT * FROM users WHERE username = $1", [
+  const result = await pool.query("SELECT * FROM users WHERE username = $1", [
     username,
   ]);
   if (result.rowCount === 0) {
@@ -112,10 +118,10 @@ app.post("/api/token", (req, res) => {
 
 app.get("/api/home", authenticateToken, async (req, res) => {
   try {
-    const taskResult = await db.query(
+    const taskResult = await pool.query(
       "SELECT * FROM tasks WHERE task != '' ORDER BY id ASC"
     );
-    const listResult = await db.query("SELECT * FROM lists ORDER by id ASC");
+    const listResult = await pool.query("SELECT * FROM lists ORDER by id ASC");
 
     res.json({
       tasks: taskResult.rows,
@@ -130,7 +136,7 @@ app.get("/api/home", authenticateToken, async (req, res) => {
 // Route to fetch all items from the "items" table
 app.get("/api/tasks", authenticateToken, async (req, res) => {
   try {
-    const result = await db.query(
+    const result = await pool.query(
       "SELECT * FROM tasks WHERE task != '' ORDER BY id ASC"
     );
     res.json(result.rows);
@@ -143,7 +149,7 @@ app.get("/api/tasks", authenticateToken, async (req, res) => {
 // Route to fetch all items from the "lists" table
 app.get("/api/lists", authenticateToken, async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM lists ORDER BY id ASC");
+    const result = await pool.query("SELECT * FROM lists ORDER BY id ASC");
     res.json(result.rows);
   } catch (err) {
     console.error(err);
@@ -155,7 +161,7 @@ app.post("/api/lists", authenticateToken, async (req, res) => {
   const { list } = req.body;
 
   try {
-    const result = await db.query(
+    const result = await pool.query(
       "INSERT INTO lists (name, selected) VALUES ($1, $2) RETURNING *;",
       [list, true]
     );
@@ -171,7 +177,7 @@ app.post("/api/tasks", authenticateToken, async (req, res) => {
   const { listID } = req.body;
 
   try {
-    const result = await db.query(
+    const result = await pool.query(
       "INSERT INTO tasks (task, list_id) VALUES ($1, $2) RETURNING *;",
       [addTask, listID]
     );
@@ -187,7 +193,7 @@ app.patch("/api/lists/:id", authenticateToken, async (req, res) => {
   const { list } = req.body;
 
   try {
-    const result = await db.query(
+    const result = await pool.query(
       "UPDATE lists SET name = ($1) WHERE id = ($2) RETURNING *",
       [list, id]
     );
@@ -204,7 +210,7 @@ app.patch("/api/tasks/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { task } = req.body;
   try {
-    const result = await db.query(
+    const result = await pool.query(
       "UPDATE tasks SET task=($1) WHERE id =($2) RETURNING *;",
       [task, id]
     );
@@ -221,14 +227,14 @@ app.delete("/api/lists/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
-    const hasTasks = await db.query(
+    const hasTasks = await pool.query(
       "SELECT * FROM tasks WHERE list_id = ($1);",
       [id]
     );
 
     if (hasTasks.rowCount > 0) {
-      await db.query("DELETE FROM tasks WHERE list_id = ($1);", [id]);
-      const result = await db.query(
+      await pool.query("DELETE FROM tasks WHERE list_id = ($1);", [id]);
+      const result = await pool.query(
         "DELETE FROM lists WHERE id = ($1) RETURNING *",
         [id]
       );
@@ -238,7 +244,7 @@ app.delete("/api/lists/:id", authenticateToken, async (req, res) => {
         deletedList: result.rows[0],
       });
     } else {
-      const result = await db.query(
+      const result = await pool.query(
         "DELETE FROM lists WHERE id = ($1) RETURNING *",
         [id]
       );
@@ -258,7 +264,7 @@ app.delete("/api/tasks/:id", authenticateToken, (req, res) => {
   const { id } = req.params;
   setTimeout(async () => {
     try {
-      const result = await db.query(
+      const result = await pool.query(
         "DELETE FROM tasks WHERE id = ($1) RETURNING *;",
         [id]
       );
@@ -277,7 +283,7 @@ app.delete("/api/tasks/:id", authenticateToken, (req, res) => {
 app.patch("/api/selected-lists", authenticateToken, async (req, res) => {
   const { listID } = req.body;
   try {
-    const result = await db.query(
+    const result = await pool.query(
       "UPDATE lists SET selected = NOT selected WHERE id = ($1) RETURNING *;",
       [listID]
     );
