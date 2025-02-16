@@ -1,72 +1,54 @@
 import express from "express";
-import pg from "pg";
 import cors from "cors";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
+import pkg from 'pg';
+
+const {Pool} = pkg; 
 
 dotenv.config();
 
 const app = express();
 const port = 3000;
 
-// Enable CORS for frontend communication
 app.use(cors());
-
-// Middleware to parse JSON
 app.use(express.json());
 
-// PostgreSQL Connection Configuration
-const db = new pg.Client({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
-// Connect to the PostgreSQL database
-db.connect()
-  .then(() => console.log("Connected to PostgreSQL"))
-  .catch((err) => console.error("Connection error", err.stack));
+// app.post("/api/register", async (req, res) => {
+//   const saltRounds = 10;
+//   const { username, password } = req.body;
+//   bcrypt.hash(password, saltRounds, async function (err, hash) {
+//     if (err) {
+//       console.error("Error hashing password:", err);
+//       res.status(500).json({ error: "Error hashing password" });
+//       return;
+//     }
 
-let tasks = [
-  { id: 1, task: "Buy milk", list_id: "General" },
-  { id: 2, task: "Finish homework", list_id: "Learning" },
-];
-
-let lists = [
-  { id: 1, name: "Learning" },
-  { id: 2, name: "General" },
-];
-
-app.post("/api/register", async (req, res) => {
-  const saltRounds = 10;
-  const { username, password } = req.body;
-  bcrypt.hash(password, saltRounds, async function (err, hash) {
-    if (err) {
-      console.error("Error hashing password:", err);
-      res.status(500).json({ error: "Error hashing password" });
-      return;
-    }
-
-    try {
-      console.log("Attempting to insert user into database");
-      const result = await db.query(
-        "INSERT INTO USERS (username, password) VALUES ($1, $2) RETURNING *;",
-        [username, hash]
-      );
-      res.json(result.rows[0]);
-    } catch (err) {
-      console.error("Database error:", err);
-      res.status(500).json({ error: "Inernal Server Error" });
-    }
-  });
-});
+//     try {
+//       console.log("Attempting to insert user into database");
+//       const result = await pool.query(
+//         "INSERT INTO USERS (username, password) VALUES ($1, $2) RETURNING *;",
+//         [username, hash]
+//       );
+//       res.json(result.rows[0]);
+//     } catch (err) {
+//       console.error("Database error:", err);
+//       res.status(500).json({ error: "Inernal Server Error" });
+//     }
+//   });
+// });
 
 // Route to fetch all items from the "items" table
 app.get("/api/tasks", async (req, res) => {
   try {
-    const result = await db.query(
+    const result = await pool.query(
       "SELECT * FROM tasks WHERE task != '' ORDER BY id ASC"
     );
     res.json(result.rows);
@@ -79,7 +61,7 @@ app.get("/api/tasks", async (req, res) => {
 // Route to fetch all items from the "lists" table
 app.get("/api/lists", async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM lists ORDER BY id ASC");
+    const result = await pool.query("SELECT * FROM lists ORDER BY id ASC");
     res.json(result.rows);
   } catch (err) {
     console.error(err);
@@ -91,7 +73,7 @@ app.post("/api/lists", async (req, res) => {
   const { list } = req.body;
 
   try {
-    const result = await db.query(
+    const result = await pool.query(
       "INSERT INTO lists (name, selected) VALUES ($1, $2) RETURNING *;",
       [list, true]
     );
@@ -107,7 +89,7 @@ app.post("/api/tasks", async (req, res) => {
   const { listID } = req.body;
 
   try {
-    const result = await db.query(
+    const result = await pool.query(
       "INSERT INTO tasks (task, list_id) VALUES ($1, $2) RETURNING *;",
       [addTask, listID]
     );
@@ -123,7 +105,7 @@ app.patch("/api/lists/:id", async (req, res) => {
   const { list } = req.body;
 
   try {
-    const result = await db.query(
+    const result = await pool.query(
       "UPDATE lists SET name = ($1) WHERE id = ($2) RETURNING *",
       [list, id]
     );
@@ -140,7 +122,7 @@ app.patch("/api/tasks/:id", async (req, res) => {
   const { id } = req.params;
   const { task } = req.body;
   try {
-    const result = await db.query(
+    const result = await pool.query(
       "UPDATE tasks SET task=($1) WHERE id =($2) RETURNING *;",
       [task, id]
     );
@@ -157,14 +139,14 @@ app.delete("/api/lists/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const hasTasks = await db.query(
+    const hasTasks = await pool.query(
       "SELECT * FROM tasks WHERE list_id = ($1);",
       [id]
     );
 
     if (hasTasks.rowCount > 0) {
-      await db.query("DELETE FROM tasks WHERE list_id = ($1);", [id]);
-      const result = await db.query(
+      await pool.query("DELETE FROM tasks WHERE list_id = ($1);", [id]);
+      const result = await pool.query(
         "DELETE FROM lists WHERE id = ($1) RETURNING *",
         [id]
       );
@@ -174,7 +156,7 @@ app.delete("/api/lists/:id", async (req, res) => {
         deletedList: result.rows[0],
       });
     } else {
-      const result = await db.query(
+      const result = await pool.query(
         "DELETE FROM lists WHERE id = ($1) RETURNING *",
         [id]
       );
@@ -194,7 +176,7 @@ app.delete("/api/tasks/:id", (req, res) => {
   const { id } = req.params;
   setTimeout(async () => {
     try {
-      const result = await db.query(
+      const result = await pool.query(
         "DELETE FROM tasks WHERE id = ($1) RETURNING *;",
         [id]
       );
@@ -213,7 +195,7 @@ app.delete("/api/tasks/:id", (req, res) => {
 app.patch("/api/selected-lists", async (req, res) => {
   const { listID } = req.body;
   try {
-    const result = await db.query(
+    const result = await pool.query(
       "UPDATE lists SET selected = NOT selected WHERE id = ($1) RETURNING *;",
       [listID]
     );
