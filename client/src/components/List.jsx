@@ -80,7 +80,8 @@ function List({
 
     e.preventDefault();
     try {
-      const response = await fetch("/api/tasks", {
+      const API_URL = import.meta.env.VITE_API_URL; 
+      const response = await fetch(`${API_URL}/api/tasks`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

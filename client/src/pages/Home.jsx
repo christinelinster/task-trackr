@@ -6,11 +6,13 @@ import List from "../components/List";
 export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
+ 
 
   // Fetch the data from /api/tasks
   async function fetchTasks() {
     try {
-      const response = await fetch("/api/tasks");
+      const API_URL = import.meta.env.VITE_API_URL; 
+      const response = await fetch(`${API_URL}/api/tasks`);
       const data = await response.json();
       setTasks(data);
     } catch (err) {
@@ -21,7 +23,8 @@ export default function Home() {
   // Fetch the data from /api/lists
   async function fetchLists() {
     try {
-      const response = await fetch("/api/lists");
+      const API_URL = import.meta.env.VITE_API_URL; 
+      const response = await fetch(`${API_URL}/api/lists`);
       const data = await response.json();
       setLists(data);
     } catch (err) {
@@ -32,7 +35,8 @@ export default function Home() {
   // Delete list from /api/lists/:id
   async function handleDeleteList(listID) {
     try {
-      const response = await fetch(`/api/lists/${listID}`, {
+      const API_URL = import.meta.env.VITE_API_URL; 
+      const response = await fetch(`${API_URL}/api/lists/${listID}`, {
         method: "DELETE",
       });
 
@@ -47,7 +51,8 @@ export default function Home() {
   // Delete task from /api/tasks/:id
   async function handleDeleteTask(taskID) {
     try {
-      const response = await fetch(`/api/tasks/${taskID}`, {
+      const API_URL = import.meta.env.VITE_API_URL; 
+      const response = await fetch(`${API_URL}/api/tasks/${taskID}`, {
         method: "DELETE",
       });
       const data = await response.json();
@@ -60,7 +65,8 @@ export default function Home() {
 
   async function handleEditList(listID, newListValue) {
     try {
-      const response = await fetch(`/api/lists/${listID}`, {
+      const API_URL = import.meta.env.VITE_API_URL; 
+      const response = await fetch(`${API_URL}/api/lists/${listID}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -85,7 +91,8 @@ export default function Home() {
   //Patch task from /api/tasks/:id
   async function handleEditTask(taskID, newTaskValue) {
     try {
-      const response = await fetch(`/api/tasks/${taskID}`, {
+      const API_URL = import.meta.env.VITE_API_URL; 
+      const response = await fetch(`${API_URL}/api/tasks/${taskID}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
