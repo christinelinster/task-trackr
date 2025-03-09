@@ -9,6 +9,7 @@ function generateAccessToken(user){
   }
 
 export async function register(req,res) {
+  console.log("registering user")
     const saltRounds = 10;
     const { username, password } = req.body;
 
@@ -28,6 +29,7 @@ export async function register(req,res) {
 }
 
 export async function login(req, res) {
+  console.log("attempting to login")
     const { username, password } = req.body;
     try {
       const result = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
