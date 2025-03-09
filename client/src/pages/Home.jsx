@@ -9,29 +9,11 @@ export default function Home({setIsAuthenticated}) {
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
 
-  
 
   async function fetchHomeData(){
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"
-    const accessToken = localStorage.getItem('accessToken');
     try {
-      const response = await fetch(`${API_URL}/api/home`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if(response.status === 403){
-        refreshAccessToken(); 
-      }
-
-      if (!response.ok) {
-        setIsAuthenticated(false);
-        throw new Error("Failed to fetch home data");
-      } 
-        const data = await response.json();
-        setTasks(data.tasks);
-        setLists(data.lists);
+      fetchLists();
+      fetchTasks();
     } catch (err) {
       console.log(err);
       console.error("Error fetching home data:", err)
@@ -41,12 +23,30 @@ export default function Home({setIsAuthenticated}) {
   // Fetch the data from /api/tasks
   async function fetchTasks() {
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
+    let accessToken = localStorage.getItem('accessToken');
     try {
       const response = await fetch(`${API_URL}/api/tasks`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          Authorization: `Bearer ${accessToken}`,
         }
       });
+
+      if(response.status === 403){
+        console.log("Access token expired. Attempting refresh.")
+        accessToken = await refreshAccessToken(); 
+
+        if(!accessToken){
+          console.log("Refresh token invalid. Logging out.")
+          setIsAuthenticated(false);
+          return
+        }
+  
+        return fetchTasks(); 
+      }
+
+      if(!response.ok){
+        throw new Error("Failed to fetch tasks")
+      }
       const data = await response.json();
       setTasks(data);
     } catch (err) {
@@ -57,12 +57,31 @@ export default function Home({setIsAuthenticated}) {
   // Fetch the data from /api/lists
   async function fetchLists() {
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
+    let accessToken = localStorage.getItem('accessToken');
     try {
       const response = await fetch(`${API_URL}/api/lists`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          Authorization: `Bearer ${accessToken}`,
         }
       });
+
+      if(response.status === 403){
+        console.log("Access token expired. Attempting refresh.")
+        accessToken = await refreshAccessToken(); 
+
+        if(!accessToken){
+          console.log("Refresh token invalid. Logging out.")
+          setIsAuthenticated(false);
+          return
+        }
+  
+        return fetchLists(); 
+      }
+
+      if(!response.ok){
+        throw new Error("Failed to fetch lists")
+      }
+
       const data = await response.json();
       setLists(data);
     } catch (err) {

@@ -1,12 +1,11 @@
-
 export default function Login({ setIsAuthenticated }) {
-
   async function handleLogin(e) {
     e.preventDefault();
 
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
     const username = e.target.username.value;
     const password = e.target.password.value;
+    console.log(API_URL, username, password);
 
     const response = await fetch(`${API_URL}/api/login`, {
       method: "POST",
@@ -19,18 +18,22 @@ export default function Login({ setIsAuthenticated }) {
       }),
     });
 
-    if(!response.ok){
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }else{
-        const data = await response.json();
-        console.log("User successfully logged in ", data);
-        localStorage.setItem("accessToken", data.accessToken);
-        localStorage.setItem("refreshToken", data.refreshToken);
-        setIsAuthenticated(true);
+    console.log("Response received: ", response);
+
+    if (!response) {
+      console.log("did not get");
     }
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("User successfully logged in ", data);
+    localStorage.setItem("accessToken", data.accessToken);
+    localStorage.setItem("refreshToken", data.refreshToken);
+    setIsAuthenticated(true);
   }
-
-
 
   // const fetchWithAuth = async (url, options = {}) => {
   //   let accessToken = localStorage.getItem("accessToken");
@@ -59,9 +62,6 @@ export default function Login({ setIsAuthenticated }) {
 
   //   return response;
   // };
-
-
-
 
   return (
     <div>
