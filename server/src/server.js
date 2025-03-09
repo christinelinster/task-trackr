@@ -10,7 +10,7 @@ const app = express();
 const port = env.port; 
 
 app.use(cors({
-  origin: ["https://task-trackr-auth.vercel.app", "http://localhost:5173", "http://localhost:3001"],
+  origin: "*",
   methods:["GET", "POST", "PUT", "PATCH", "DELETE"],
 }));
 
