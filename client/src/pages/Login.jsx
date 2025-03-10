@@ -77,7 +77,7 @@ export default function Login({ setIsAuthenticated }) {
         </label>
         <button type="submit">Login</button>
         <p>Don&apos;t have an account?</p>
-        <a href="/signup">Click here to Register</a>
+        <a href="/signup">Click here to register</a>
       </form>
     </div>
   );
