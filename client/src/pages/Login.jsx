@@ -1,11 +1,11 @@
-export default function Login({ setIsAuthenticated }) {
+export default function Login({ setIsAuthenticated}) {
+
   async function handleLogin(e) {
     e.preventDefault();
 
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
     const username = e.target.username.value;
     const password = e.target.password.value;
-    console.log(API_URL, username, password);
 
     const response = await fetch(`${API_URL}/api/login`, {
       method: "POST",
@@ -17,8 +17,6 @@ export default function Login({ setIsAuthenticated }) {
         password: password,
       }),
     });
-
-    console.log("Response received: ", response);
 
     if (!response) {
       console.log("did not get");
@@ -34,34 +32,6 @@ export default function Login({ setIsAuthenticated }) {
     localStorage.setItem("refreshToken", data.refreshToken);
     setIsAuthenticated(true);
   }
-
-  // const fetchWithAuth = async (url, options = {}) => {
-  //   let accessToken = localStorage.getItem("accessToken");
-  //   if (!accessToken) {
-  //     accessToken = await refreshAccessToken();
-  //   }
-
-  //   const response = await fetch(url, {
-  //     ...options,
-  //     headers: {
-  //       ...options.headers,
-  //       Authorization: `Bearer ${accessToken}`,
-  //     },
-  //   });
-
-  //   if (response.status === 401) {
-  //     accessToken = await refreshAccessToken();
-  //     return fetch(url, {
-  //       ...options,
-  //       headers: {
-  //         ...options.headers,
-  //         Authorization: `Bearer ${accessToken}`,
-  //       },
-  //     });
-  //   }
-
-  //   return response;
-  // };
 
   return (
     <div>

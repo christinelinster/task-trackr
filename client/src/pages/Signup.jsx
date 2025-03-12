@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   async function handleRegister(e) {
     try {

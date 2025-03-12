@@ -29,7 +29,7 @@ export async function register(req,res) {
 }
 
 export async function login(req, res) {
-  console.log("attempting to login")
+  console.log("attempting to login right now")
     const { username, password } = req.body;
     try {
       const result = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
@@ -37,8 +37,8 @@ export async function login(req, res) {
   
       const user = result.rows[0];
       if (await bcrypt.compare(password, user.password)) {
-        const accessToken = generateAccessToken({ user: user.username });
-        const refreshToken = jwt.sign({ user: user.username }, process.env.REFRESH_TOKEN_SECRET);
+        const accessToken = generateAccessToken({ id: user.id, user: user.username });
+        const refreshToken = jwt.sign({ id: user.id, user: user.username }, process.env.REFRESH_TOKEN_SECRET);
         refreshTokens.push(refreshToken);
         res.json({ userId: user.id, accessToken, refreshToken });
       } else {
@@ -62,7 +62,7 @@ export async function login(req, res) {
   
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
       if (err) return res.sendStatus(403);
-      const accessToken = generateAccessToken({ user: user.username });
+      const accessToken = generateAccessToken({ id: user.id, user: user.username });
       res.json({ accessToken });
     });
   }

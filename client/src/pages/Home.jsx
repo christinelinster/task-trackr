@@ -1,29 +1,26 @@
-import { useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import List from "../components/List";
 import Navbar from "../components/Navbar";
 
-
-export default function Home({setIsAuthenticated}) {
-
+export default function Home({ setIsAuthenticated}) {
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
 
-
-  async function fetchHomeData(){
+  async function fetchHomeData() {
     try {
       fetchLists();
       fetchTasks();
     } catch (err) {
       console.log(err);
-      console.error("Error fetching home data:", err)
+      console.error("Error fetching home data:", err);
     }
   }
 
   // Fetch the data from /api/tasks
   async function fetchTasks() {
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
-    let accessToken = localStorage.getItem('accessToken');
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    let accessToken = localStorage.getItem("accessToken");
     try {
       const response = await fetch(`${API_URL}/api/tasks`, {
         headers: {
@@ -31,21 +28,21 @@ export default function Home({setIsAuthenticated}) {
         }
       });
 
-      if(response.status === 403){
-        console.log("Access token expired. Attempting refresh.")
-        accessToken = await refreshAccessToken(); 
+      if (response.status === 403) {
+        console.log("Access token expired. Attempting refresh.");
+        accessToken = await refreshAccessToken();
 
-        if(!accessToken){
-          console.log("Refresh token invalid. Logging out.")
+        if (!accessToken) {
+          console.log("Refresh token invalid. Logging out.");
           setIsAuthenticated(false);
-          return
+          return;
         }
-  
-        return fetchTasks(); 
+
+        return fetchTasks();
       }
 
-      if(!response.ok){
-        throw new Error("Failed to fetch tasks")
+      if (!response.ok) {
+        throw new Error("Failed to fetch tasks");
       }
       const data = await response.json();
       setTasks(data);
@@ -56,30 +53,32 @@ export default function Home({setIsAuthenticated}) {
 
   // Fetch the data from /api/lists
   async function fetchLists() {
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
-    let accessToken = localStorage.getItem('accessToken');
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    let accessToken = localStorage.getItem("accessToken");
     try {
-      const response = await fetch(`${API_URL}/api/lists`, {
+      const response = await fetch(`${API_URL}/api/lists/`, {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
-        }
+
+        },
       });
 
-      if(response.status === 403){
-        console.log("Access token expired. Attempting refresh.")
-        accessToken = await refreshAccessToken(); 
+      if (response.status === 403) {
+        console.log("Access token expired. Attempting refresh.");
+        accessToken = await refreshAccessToken();
 
-        if(!accessToken){
-          console.log("Refresh token invalid. Logging out.")
+        if (!accessToken) {
+          console.log("Refresh token invalid. Logging out.");
           setIsAuthenticated(false);
-          return
+          return;
         }
-  
-        return fetchLists(); 
+
+        return fetchLists();
       }
 
-      if(!response.ok){
-        throw new Error("Failed to fetch lists")
+      if (!response.ok) {
+        throw new Error("Failed to fetch lists");
       }
 
       const data = await response.json();
@@ -90,7 +89,7 @@ export default function Home({setIsAuthenticated}) {
   }
 
   const refreshAccessToken = async () => {
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
     const refreshToken = localStorage.getItem("refreshToken");
     const response = await fetch(`${API_URL}/api/token`, {
       method: "POST",
@@ -111,7 +110,7 @@ export default function Home({setIsAuthenticated}) {
 
   // Delete list from /api/lists/:id
   async function handleDeleteList(listID) {
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
     try {
       const response = await fetch(`${API_URL}/api/lists/${listID}`, {
         method: "DELETE",
@@ -130,7 +129,7 @@ export default function Home({setIsAuthenticated}) {
 
   // Delete task from /api/tasks/:id
   async function handleDeleteTask(taskID) {
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
     try {
       const response = await fetch(`${API_URL}/api/tasks/${taskID}`, {
         method: "DELETE",
@@ -147,7 +146,7 @@ export default function Home({setIsAuthenticated}) {
   }
 
   async function handleEditList(listID, newListValue) {
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
     try {
       const response = await fetch(`${API_URL}/api/lists/${listID}`, {
         method: "PATCH",
@@ -174,7 +173,7 @@ export default function Home({setIsAuthenticated}) {
 
   //Patch task from /api/tasks/:id
   async function handleEditTask(taskID, newTaskValue) {
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
     try {
       const response = await fetch(`${API_URL}/api/tasks/${taskID}`, {
         method: "PATCH",
@@ -200,7 +199,7 @@ export default function Home({setIsAuthenticated}) {
   }
 
   async function handleSelectedLists(listID) {
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
     try {
       const response = await fetch(`${API_URL}/api/selected-lists`, {
         method: "PATCH",
@@ -226,16 +225,16 @@ export default function Home({setIsAuthenticated}) {
     }
   }
 
-    // Initial data fetching
-    useEffect(() => {
-      fetchHomeData();
-    }, []);
+  // Initial data fetching
+  useEffect(() => {
+    fetchHomeData();
+  }, []);
 
   return (
     <div id="main">
-      <Navbar setIsAuthenticated={setIsAuthenticated}/>
+      <Navbar setIsAuthenticated={setIsAuthenticated} />
       <Header
-      lists={lists}
+        lists={lists}
         onUpdateLists={fetchLists}
         onSelectedLists={handleSelectedLists}
       />

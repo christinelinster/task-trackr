@@ -3,6 +3,7 @@ import pool from "../config/database.js";
 export async function getLists(req, res, next) {
     const userId = req.user.id; 
   try {
+    console.log("getLists function called", req.user, req.id)
     const result = await pool.query("SELECT * FROM lists WHERE user_id = ($1) ORDER BY id ASC", [userId]);
     res.json(result.rows);
   } catch (err) {
@@ -15,6 +16,7 @@ export async function createList(req, res, next) {
     const { list } = req.body;
     const userId = req.user.id; 
     try {
+        console.log("createList function called", req.user, req.id)
       const result = await pool.query(
         "INSERT INTO lists (name, selected, user_id) VALUES ($1, $2, $3) RETURNING *;",
         [list, true, userId]

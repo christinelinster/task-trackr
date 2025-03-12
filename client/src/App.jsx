@@ -22,7 +22,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route exact path="/" element={isAuthenticated ? <Home setIsAuthenticated={setIsAuthenticated}/> : <Login setIsAuthenticated={setIsAuthenticated}/>} />
+        <Route exact path="/" element={isAuthenticated ? <Home setIsAuthenticated={setIsAuthenticated} /> : <Navigate to= "/login"/>}/>
         <Route path="/login" element = {isAuthenticated ? <Navigate to="/"/> : <Login setIsAuthenticated={setIsAuthenticated}/>} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/registered" element={<Registered/>}/>
