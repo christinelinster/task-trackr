@@ -40,7 +40,7 @@ export async function login(req, res) {
         const accessToken = generateAccessToken({ user: user.username });
         const refreshToken = jwt.sign({ user: user.username }, process.env.REFRESH_TOKEN_SECRET);
         refreshTokens.push(refreshToken);
-        res.json({ accessToken, refreshToken });
+        res.json({ userId: user.id, accessToken, refreshToken });
       } else {
         res.sendStatus(403);
       }

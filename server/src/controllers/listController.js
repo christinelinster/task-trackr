@@ -1,8 +1,9 @@
 import pool from "../config/database.js";
 
 export async function getLists(req, res, next) {
+    const userId = req.user.id; 
   try {
-    const result = await pool.query("SELECT * FROM lists ORDER BY id ASC");
+    const result = await pool.query("SELECT * FROM lists WHERE user_id = ($1) ORDER BY id ASC", [userId]);
     res.json(result.rows);
   } catch (err) {
     console.error("Error fetching lists:", err);
@@ -12,10 +13,11 @@ export async function getLists(req, res, next) {
 
 export async function createList(req, res, next) {
     const { list } = req.body;
+    const userId = req.user.id; 
     try {
       const result = await pool.query(
-        "INSERT INTO lists (name, selected) VALUES ($1, $2) RETURNING *;",
-        [list, true]
+        "INSERT INTO lists (name, selected, user_id) VALUES ($1, $2, $3) RETURNING *;",
+        [list, true, userId]
       );
       res.status(201).json(result.rows[0]);
     } catch (err) {
