@@ -1,8 +1,31 @@
-# React + Vite
+## Task Trackr
+Task Trackr is a full-stack task management app designed to help users organize and track their tasks efficiently.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 🚀 Features
+- User authentication (login, logout)
+- Create, read, update, and delete tasks (CRUD functionality)
+- Responsive UI for desktop and mobile
+- Persistent data storage with PostgreSQL
+- Hosted live on Vercel
 
-Currently, two official plugins are available:
+## 🛠️ Technologies Used
+- JavaScript (ES6)
+- Node.js
+- Express.js
+- PostgreSQL
+- Vercel (hosting)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🎯 Areas for Future Improvement
+- Add task categories and deadlines
+- Optimize cold start handling for better user experience
+- Improve error handling and user feedback
+- Enhance mobile responsiveness and styling polish
+
+## 🌎 Live Site
+https://task-trackr-neon.vercel.app/
+
+## 📚 Lessons Learned
+- Implemented a full authentication flow with session handling
+- Deepened understanding of Express.js routing and middleware
+- Gained experience in building and deploying full-stack applications
+
