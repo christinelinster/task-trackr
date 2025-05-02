@@ -1,10 +1,21 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 
 
 export default function Signup() {
-
-  const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate();
 
   async function handleRegister(e) {
     try {
@@ -34,21 +45,136 @@ export default function Signup() {
   }
 
   return (
-    <div>
-      <h2>Sign Up</h2>
-      <form onSubmit={handleRegister}>
-        <label>
-          Username:
-          <input type="text" name="username" />
-        </label>
-        <label>
-          Password:
-          <input type="password" name="password" />
-        </label>
-        <button type="submit">Sign Up</button>
-        <p>Already have an account?</p>
-        <a href="/login">Click here to login</a>
+
+    <Container maxWidth="xs">
+    
+      <form className="login-form" onSubmit={handleRegister}>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          minHeight="100vh"
+        >
+          <Typography variant="h5" component="h1" gutterBottom>
+            Sign Up
+          </Typography>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            sx={{
+              input: { color: "rgba(255, 255, 255, 0.87)" },
+              "& label": {
+                color: "rgba(255, 255, 255, 0.87)",
+              },
+              "& label.Mui-focused": {
+                color: "rgba(222, 208, 182, 0.50)",
+              },
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "rgba(255, 255, 255, 0.5)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "rgba(255, 255, 255, 0.5)",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "rgba(255, 255, 255, 0.5)",
+                },
+              },
+            }}
+            label="Username"
+            name="username"
+            type="text"
+          />
+          <TextField
+            label="Password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            fullWidth
+            margin="normal"
+            required
+            sx={{
+              input: { color: "rgba(255, 255, 255, 0.87)" },
+              "& label": {
+                color: "rgba(255, 255, 255, 0.87)",
+              },
+              "& label.Mui-focused": {
+                color: "rgba(222, 208, 182, 0.50)",
+              },
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "rgba(255, 255, 255, 0.5)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "rgba(255, 255, 255, 0.5)",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "rgba(255, 255, 255, 0.5)",
+                },
+              },
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    sx={{
+                      color: "rgba(255, 255, 255, 0.5)",
+                      outline: "none",
+                      "&:focus": {
+                        outline: "none",
+                        boxShadow: "none",
+                      },
+                    }}
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Box display="flex" gap={2} width="100%" mt={2}>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                flex: 1,
+                backgroundColor: "#DED0B680",
+                outline: "none",
+                "&:focus": {
+                  outline: "none",
+                  boxShadow: "none",
+                },
+              }}
+            >
+              Sign Up
+            </Button>
+            <Button
+              variant="outlined"
+              sx={{
+                flex: 1,
+                borderColor: "#DED0B680",
+                color: "#DED0B680",
+                "&:hover": {
+                  backgroundColor: "rgba(222, 208, 182, 0.75)",
+                  borderColor: "rgba(222, 208, 182, 0.75)",
+                  color: "rgba(255, 255, 255, 0.87)",
+                },
+                outline: "none",
+                "&:focus": {
+                  outline: "none",
+                  boxShadow: "none",
+                },
+              }}
+              component="a"
+              href="/login"
+            >
+              Login
+            </Button>
+          </Box>
+        </Box>
       </form>
-    </div>
+    </Container>
   );
 }

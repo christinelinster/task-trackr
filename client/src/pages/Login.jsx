@@ -48,6 +48,7 @@ export default function Login({ setIsAuthenticated }) {
 
   return (
     <Container maxWidth="xs">
+    
       <form className="login-form" onSubmit={handleLogin}>
         <Box
           display="flex"
@@ -57,7 +58,7 @@ export default function Login({ setIsAuthenticated }) {
           minHeight="100vh"
         >
           <Typography variant="h5" component="h1" gutterBottom>
-            Login
+            Login to Task Trackr
           </Typography>
           <TextField
             margin="normal"
