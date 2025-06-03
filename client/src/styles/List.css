@@ -5,7 +5,12 @@
     justify-content: center;
     grid-template-columns: repeat(auto-fit, 400px);
     gap: 50px;
-    padding: 4rem;
+}
+
+@media (max-width: 640px){
+    .cards{
+        grid-template-columns: repeat(auto-fit);
+    }
 }
 
 .list{

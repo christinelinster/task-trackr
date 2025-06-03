@@ -52,7 +52,8 @@ function ListMenu({ lists, onSelectedLists}) {
 
   return (
     <div id="list-menu">
-      <Button onClick={toggleDrawer(true)} variant="outlined" color="inherit" className="custom-icon">View Lists</Button>
+      <Button onClick={toggleDrawer(true)} sx={{fontFamily: "Poppins", borderRadius: "10px"}} variant="outlined" color="inherit" className="custom-icon"> View Lists
+        </Button>
       <Drawer
         className="custom-drawer"
         open={open}

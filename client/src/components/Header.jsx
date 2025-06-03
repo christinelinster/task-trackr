@@ -45,7 +45,7 @@ function Header({lists, onUpdateLists, onSelectedLists}) {
           autoComplete="off"
           onChange={(e) => setList(e.target.value)}
         />
-        <button type="submit"> + New List</button>
+        <button type="submit"> + Add</button>
       </form>
       <ListMenu lists={lists} onSelectedLists={onSelectedLists} />
     </div>
