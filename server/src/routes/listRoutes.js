@@ -5,7 +5,6 @@ import {
   createList,
   updateList,
   deleteList,
-  toggleListSelection,
 } from "../controllers/listController.js";
 
 const router = express.Router();
@@ -13,9 +12,6 @@ const router = express.Router();
 
 router.get("/", authenticateToken, getLists);
 router.post("/", authenticateToken, createList);
-
-router.patch("/selected", authenticateToken, toggleListSelection);
-
 router.patch("/:id", authenticateToken, updateList);
 router.delete("/:id", authenticateToken, deleteList);
 

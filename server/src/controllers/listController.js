@@ -71,32 +71,3 @@ export async function deleteList(req, res, next) {
     next(err);
   }
 }
-
-export async function toggleListSelection(req, res, next) {
-  console.log("✅ toggleListSelection route hit");
-  const listID = Number(req.body.listId);
-  if (isNaN(listID)) {
-    return res.status(400).json({ error: "Invalid or missing list ID" });
-  }
-
-  const userId = req.user.id;
-
-  try {
-    const result = await pool.query(
-      "UPDATE lists SET selected = NOT selected WHERE id = ($1) AND user_id = ($2) RETURNING *;",
-      [listID, userId]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "List not found or you don't have permission to update it",
-      });
-    }
-
-    res.status(200).json(result.rows[0]);
-  } catch (err) {
-    console.error("Error toggling list selection:", err);
-    next(err);
-  }
-}

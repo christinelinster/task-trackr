@@ -1,2 +1,18 @@
 
-  
+  .app-title {
+  font-family: 'Poppins', sans-serif;
+  color: rgba(222, 208, 182, 0.50);
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.app-title:hover {
+  color: rgba(222, 208, 182, 0.85);
+}
+
+.logout {
+  color: rgba(222, 208, 182, 0.50);
+  text-decoration: none;
+  outline: none;
+}

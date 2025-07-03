@@ -46,10 +46,10 @@ export default function Navbar({setIsAuthenticated}) {
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1}}>
 
-            <Link to="/" >Task Trackr</Link>
+            <Link to="/" className='app-title'>Task Trackr</Link>
           </Typography>
 
-          <Button color="inherit" onClick={handleLogout}><Link to="/login">Log Out</Link></Button>
+          <Button color="inherit" onClick={handleLogout}><Link to="/login" className='logout'>Log Out</Link></Button>
         </Toolbar>
       </AppBar>
     </Box>

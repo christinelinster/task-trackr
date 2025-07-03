@@ -1,8 +1,7 @@
 import { useState } from "react";
 import "../styles/header.css"
-import ListMenu from "./ListMenu";
 
-function Header({lists, onUpdateLists, onSelectedLists}) {
+function Header({onUpdateLists}) {
 
   const [list, setList] = useState("");
 
@@ -45,9 +44,8 @@ function Header({lists, onUpdateLists, onSelectedLists}) {
           autoComplete="off"
           onChange={(e) => setList(e.target.value)}
         />
-        <button type="submit"> + Add</button>
+        <button type="submit"> + Add List</button>
       </form>
-      <ListMenu lists={lists} onSelectedLists={onSelectedLists} />
     </div>
   );
 }

@@ -198,7 +198,6 @@ export default function Home({ setIsAuthenticated }) {
   }
 
   async function handleSelectedLists(listID) {
-    console.log("Selecting list with ID:", listID);
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
     let accessToken = localStorage.getItem("accessToken");
 

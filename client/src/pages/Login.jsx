@@ -40,7 +40,6 @@ export default function Login({ setIsAuthenticated }) {
     }
 
     const data = await response.json();
-    console.log("User successfully logged in ", data);
     localStorage.setItem("accessToken", data.accessToken);
     localStorage.setItem("refreshToken", data.refreshToken);
     setIsAuthenticated(true);
