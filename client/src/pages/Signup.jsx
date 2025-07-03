@@ -15,11 +15,14 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 export default function Signup() {
     const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState("");
     const navigate = useNavigate();
 
   async function handleRegister(e) {
     try {
       e.preventDefault();
+      setError("");
+
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
         const response = await fetch(`${API_URL}/api/register`, {
             method: "POST",
@@ -33,7 +36,15 @@ export default function Signup() {
         });
 
         if(!response.ok){
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            console.log("Signup error:", data);
+            if (response.status == 409 && data.error == "Username already exists") {
+                setError("Username already exists");
+            } else{
+                setError("Signup failed. Please try again.");
+            }
+            console.error("Signup error:", data.error);
+            return;
         } else {
             const data = await response.json();
             console.log("User successfully registered ", data);
@@ -59,6 +70,11 @@ export default function Signup() {
           <Typography variant="h5" component="h1" gutterBottom>
             Sign Up
           </Typography>
+          {error && (
+            <Typography color="error" sx={{ mb: 2 }}>
+              {error}
+            </Typography>
+          )}
           <TextField
             margin="normal"
             required

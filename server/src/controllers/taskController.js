@@ -1,9 +1,11 @@
 import pool from "../config/database.js";
 
 export async function getTasks(req,res,next){
+    const userId = req.user.id;
     try {
         const result = await pool.query(
-          "SELECT * FROM tasks WHERE task != '' ORDER BY id ASC"
+          "SELECT * FROM tasks WHERE user_id = ($1) AND task != '' ORDER BY id ASC",
+            [userId]
         );
         res.json(result.rows);
       } catch (err) {

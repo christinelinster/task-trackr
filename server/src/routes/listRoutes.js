@@ -10,10 +10,14 @@ import {
 
 const router = express.Router();
 
+
 router.get("/", authenticateToken, getLists);
 router.post("/", authenticateToken, createList);
+
+router.patch("/selected", authenticateToken, toggleListSelection);
+
 router.patch("/:id", authenticateToken, updateList);
 router.delete("/:id", authenticateToken, deleteList);
-router.patch("/selected", authenticateToken, toggleListSelection);
+
 
 export default router;

@@ -14,6 +14,11 @@ export async function register(req,res) {
     const { username, password } = req.body;
 
     try{
+        const existingUser = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
+        if (existingUser.rowCount > 0) {
+            return res.status(409).json({ error: "Username already exists" });
+        }
+
         const hash = await bcrypt.hash(password, saltRounds);
         const result = await pool.query(
             "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *", 

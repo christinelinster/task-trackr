@@ -29,7 +29,11 @@ function ListMenu({ lists, onSelectedLists}) {
       <List>
         {lists && lists.map((list) => (
           <ListItem
-            onClick={() => onSelectedLists(list.id)}
+            onClick={() => {
+  console.log("List ID clicked:", list.id);
+  console.log("Clicked list:", list);
+  onSelectedLists(list.id);
+}}
             key={list.id}
             disablePadding
           >

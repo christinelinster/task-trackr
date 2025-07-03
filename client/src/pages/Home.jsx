@@ -3,7 +3,7 @@ import Header from "../components/Header";
 import List from "../components/List";
 import Navbar from "../components/Navbar";
 
-export default function Home({ setIsAuthenticated}) {
+export default function Home({ setIsAuthenticated }) {
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
 
@@ -25,7 +25,7 @@ export default function Home({ setIsAuthenticated}) {
       const response = await fetch(`${API_URL}/api/tasks`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-        }
+        },
       });
 
       if (response.status === 403) {
@@ -60,7 +60,6 @@ export default function Home({ setIsAuthenticated}) {
         method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
-
         },
       });
 
@@ -199,28 +198,47 @@ export default function Home({ setIsAuthenticated}) {
   }
 
   async function handleSelectedLists(listID) {
+    console.log("Selecting list with ID:", listID);
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    let accessToken = localStorage.getItem("accessToken");
+
     try {
-      const response = await fetch(`${API_URL}/api/selected-lists`, {
+      const response = await fetch(`${API_URL}/api/lists/selected`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          listID: listID,
+          listId: listID,
         }),
       });
+
+      if (response.status === 403) {
+        console.log("Access token expired. Attempting refresh.");
+        accessToken = await refreshAccessToken();
+
+        if (!accessToken) {
+          console.log("Refresh token invalid. Logging out.");
+          setIsAuthenticated(false);
+          return;
+        }
+        
+        return handleSelectedLists(listID);
+      }
 
       if (!response.ok) {
         throw new Error("Failed to update selected lists");
       }
 
-      const data = await response.json();
-      console.log("Selected Lists: ", data);
-      fetchLists();
+      const updatedList = await response.json();
+      setLists((prevLists) =>
+        prevLists.map((list) =>
+          list.id === updatedList.id ? updatedList : list
+        )
+      );
     } catch (err) {
-      console.err("Error selecting list:", err);
+      console.error("Error selecting list:", err);
       throw err;
     }
   }
