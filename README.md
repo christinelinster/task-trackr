@@ -22,7 +22,7 @@ Task Trackr is a full-stack task management app designed to help users organize 
 - Enhance mobile responsiveness and styling polish
 
 ## 🌎 Live Site
-https://task-trackr-neon.vercel.app/
+[https://task-trackr-neon.vercel.app/](https://task-trackr-auth.vercel.app/login)
 
 ## 📚 Lessons Learned
 - Implemented a full authentication flow with session handling
